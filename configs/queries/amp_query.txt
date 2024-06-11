@@ -1,0 +1,9 @@
+([antimicrobial peptide] OR [antimicrobial peptides]) 
+
+AND 
+
+([discovery] OR [discovering] OR [generation] OR [generating] OR [design] OR [designing] OR [optimization] OR [optimizing])
+
+AND
+
+([generative model] OR [machine learning] OR [AI] OR [representation] OR [network] OR [embedding])
