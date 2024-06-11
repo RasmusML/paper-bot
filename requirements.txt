@@ -1,2 +1,4 @@
 findpapers
 PyYAML
+discord.py
+python-dotenv

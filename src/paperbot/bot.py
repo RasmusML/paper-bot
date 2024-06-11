@@ -33,14 +33,21 @@ def fetch_papers(
     )
 
 
-def read_fetched_papers(output_path: str) -> dict:
+def get_fetched_papers(path: str) -> dict:
+    """Read and prepare the fetched papers."""
+    papers_fetched = _read_fetched_papers(path)
+    papers = _prepare_fetched_papers(papers_fetched)
+    return papers
+
+
+def _read_fetched_papers(path: str) -> dict:
     """Read the fetched papers from a JSON file."""
-    with open(output_path) as f:
+    with open(path) as f:
         results = json.load(f)
     return results
 
 
-def prepare_fetched_papers(papers_fetched: dict) -> dict:
+def _prepare_fetched_papers(papers_fetched: dict) -> dict:
     """Prepare the fetched papers for further processing."""
     all_papers = papers_fetched["papers"]
 
