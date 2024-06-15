@@ -24,6 +24,7 @@ HELP_INFO = """
 - Example: `!paperbot "([machine learning] OR [ML]) AND [AMP]" 2022-01-01`
 """
 
+TEMPLATE_QUERIES_DIR = "configs/queries"
 
 load_dotenv()
 
@@ -39,12 +40,19 @@ async def paperbot(ctx, query: str = None, date_since: str = None):
     if (query is None) or (date_since is None):
         return await ctx.send(HELP_INFO)
 
+    template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
+    if query in template_queries:
+        query = template_queries[query]
+
     try:
         since = datetime.date.fromisoformat(date_since)
     except ValueError:
         return await ctx.send("Invalid date format. Please use YYYY-MM-DD.")
 
-    pb.fetch_papers(output_path, query, since=since)
+    try:
+        pb.fetch_papers(output_path, query, since=since)
+    except ValueError:
+        return await ctx.send("Invalid query. Please check the syntax.")
 
     papers = pb.load_papers(output_path)
     text = pb.format_paper_overview(papers, "discord")

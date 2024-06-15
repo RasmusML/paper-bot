@@ -23,6 +23,8 @@ HELP_INFO = """
 - Example: `/paperbot ([machine learning] OR [ML]) AND [AMP],2022-01-01
 """
 
+TEMPLATE_QUERIES_DIR = "configs/queries"
+
 
 load_dotenv()
 
@@ -30,7 +32,7 @@ app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
 
 @app.command("/paperbot")
-def paperbot(ack, body):
+def paperbot(ack, say, body):
     ack()
 
     text = body["text"]
@@ -39,23 +41,32 @@ def paperbot(ack, body):
     args = text.split(",")
 
     if len(args) != 2:
-        return app.client.chat_postMessage(channel=body["channel_id"], text=HELP_INFO)
+        return say(HELP_INFO)
 
     query, date_since = args
+
+    template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
+    if query in template_queries:
+        query = template_queries[query]
 
     try:
         since = datetime.date.fromisoformat(date_since)
     except ValueError:
-        app.client.chat_postMessage(channel=body["channel_id"], text="Invalid date format. Please use YYYY-MM-DD.")
+        say("Invalid date format. Please use YYYY-MM-DD.")
         return
 
     output_path = "outputs/slack_bot_papers.json"
-    pb.fetch_papers(output_path, query, since=since)
+
+    try:
+        pb.fetch_papers(output_path, query, since=since)
+    except ValueError:
+        say("Invalid query. Please check the syntax.")
+        return
 
     papers = pb.load_papers(output_path)
     text = pb.format_paper_overview(papers, "slack")
 
-    app.client.chat_postMessage(channel=body["channel_id"], text=text)
+    say(text)
 
 
 if __name__ == "__main__":

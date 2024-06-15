@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+from pathlib import Path
 from typing import Literal
 
 import findpapers
@@ -100,16 +101,16 @@ def format_paper_overview(raw_papers: dict, format_type: Literal["plain", "slack
     assert "metadata" in raw_papers, "The input dictionary must contain a 'metadata' key."
     assert "papers" in raw_papers, "The input dictionary must contain a 'papers' key."
 
-    FORMAT_TYPES = {
+    FORMATTERS = {
         "plain": PlainFormatter(),
         "slack": SlackFormatter(),
         "discord": DiscordFormatter(),
     }
 
-    if format_type not in FORMAT_TYPES:
+    if format_type not in FORMATTERS:
         raise ValueError(f"Formatter {format_type} is not supported.")
 
-    formatter = FORMAT_TYPES[format_type]
+    formatter = FORMATTERS[format_type]
 
     metadata = raw_papers["metadata"]
     papers_fetched = raw_papers["papers"]
@@ -185,7 +186,7 @@ class Formatter:
         raise NotImplementedError
 
     def bold(self, text: str) -> str:
-        """Bold a text."""
+        """Make text bold."""
         raise NotImplementedError
 
 
@@ -220,3 +221,18 @@ class PlainFormatter(Formatter):
 
     def bold(self, text: str) -> str:
         return f"*{text}*"
+
+
+def read_queries_from_dir(queries_dir: str) -> dict[str, str]:
+    """Read queries from text files in a directory and store them in a dictionary."""
+    queries_dir_pth = Path(queries_dir)
+
+    queries = {}
+    for query_pth in queries_dir_pth.glob("*.txt"):
+        with open(query_pth) as f:
+            query = f.read()
+
+        filename = query_pth.stem
+        queries[filename] = query
+
+    return queries
