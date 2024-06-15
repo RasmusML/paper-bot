@@ -19,4 +19,4 @@ pip install -e .
 ```
 
 ## Setup
-Add client tokens to `.env` in project root and run the bot script of the desired client in `scripts/`.
+Add client tokens to `.env` in project root and run the desired clients bot script located in `scripts/`.
