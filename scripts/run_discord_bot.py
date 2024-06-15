@@ -61,5 +61,4 @@ async def paperbot(ctx, query: str = None, date_since: str = None):
 
 
 if __name__ == "__main__":
-    BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-    bot.run(BOT_TOKEN)
+    bot.run(os.environ["DISCORD_BOT_TOKEN"])
