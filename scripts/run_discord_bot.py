@@ -24,7 +24,8 @@ HELP_INFO = """
 - Example: `!paperbot "([machine learning] OR [ML]) AND [AMP]" 2022-01-01`
 """
 
-TEMPLATE_QUERIES_DIR = "configs/queries"
+TEMPLATE_QUERIES_DIR = "queries/"
+OUTPUT_PATH = "outputs/discord_bot_papers.json"
 
 load_dotenv()
 
@@ -35,8 +36,6 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.command()
 async def paperbot(ctx, query: str = None, date_since: str = None):
     """Fetch papers and send them to the channel."""
-    output_path = "outputs/discord_bot_papers.json"
-
     if (query is None) or (date_since is None):
         return await ctx.send(HELP_INFO)
 
@@ -50,11 +49,11 @@ async def paperbot(ctx, query: str = None, date_since: str = None):
         return await ctx.send("Invalid date format. Please use YYYY-MM-DD.")
 
     try:
-        pb.fetch_papers(output_path, query, since=since)
+        pb.fetch_papers(OUTPUT_PATH, query, since=since)
     except ValueError:
         return await ctx.send("Invalid query. Please check the syntax.")
 
-    papers = pb.load_papers(output_path)
+    papers = pb.load_papers(OUTPUT_PATH)
     text = pb.format_paper_overview(papers, "discord")
 
     await ctx.send(text)

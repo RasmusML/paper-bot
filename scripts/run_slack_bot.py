@@ -23,7 +23,8 @@ HELP_INFO = """
 - Example: `/paperbot ([machine learning] OR [ML]) AND [AMP],2022-01-01
 """
 
-TEMPLATE_QUERIES_DIR = "configs/queries"
+TEMPLATE_QUERIES_DIR = "queries/"
+OUTPUT_PATH = "outputs/slack_bot_papers.json"
 
 
 load_dotenv()
@@ -55,15 +56,13 @@ def paperbot(ack, say, body):
         say("Invalid date format. Please use YYYY-MM-DD.")
         return
 
-    output_path = "outputs/slack_bot_papers.json"
-
     try:
-        pb.fetch_papers(output_path, query, since=since)
+        pb.fetch_papers(OUTPUT_PATH, query, since=since)
     except ValueError:
         say("Invalid query. Please check the syntax.")
         return
 
-    papers = pb.load_papers(output_path)
+    papers = pb.load_papers(OUTPUT_PATH)
     text = pb.format_paper_overview(papers, "slack")
 
     say(text)
