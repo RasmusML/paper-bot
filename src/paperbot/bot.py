@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+from typing import Literal
 
 import findpapers
 
@@ -33,30 +34,30 @@ def fetch_papers(
     )
 
 
-def get_fetched_papers(path: str) -> dict:
+def load_papers(path: str) -> dict:
     """Read and prepare the fetched papers."""
-    papers_fetched = _read_fetched_papers(path)
-    papers = _prepare_fetched_papers(papers_fetched)
+    papers_fetched = _load_cached_papers(path)
+    papers = _prepare_papers(papers_fetched)
     return papers
 
 
-def _read_fetched_papers(path: str) -> dict:
+def _load_cached_papers(path: str) -> dict:
     """Read the fetched papers from a JSON file."""
     with open(path) as f:
         results = json.load(f)
     return results
 
 
-def _prepare_fetched_papers(papers_fetched: dict) -> dict:
+def _prepare_papers(fetched_papers: dict) -> dict:
     """Prepare the fetched papers for further processing."""
-    all_papers = papers_fetched["papers"]
+    raw_papers = fetched_papers["papers"]
 
-    titles = _extract_field(all_papers, "title")
-    authors = _extract_field(all_papers, "authors")
-    abstracts = _extract_field(all_papers, "abstract")
-    urls = _extract_field(all_papers, "urls")
-    publication_dates = _extract_field(all_papers, "publication_date")
-    publications = _extract_field(all_papers, "publication")
+    titles = _extract_field(raw_papers, "title")
+    authors = _extract_field(raw_papers, "authors")
+    abstracts = _extract_field(raw_papers, "abstract")
+    urls = _extract_field(raw_papers, "urls")
+    publication_dates = _extract_field(raw_papers, "publication_date")
+    publications = _extract_field(raw_papers, "publication")
     publication_types = _extract_field(publications, "category")
 
     papers = [
@@ -74,11 +75,17 @@ def _prepare_fetched_papers(papers_fetched: dict) -> dict:
         )
     ]
 
-    papers = sorted(papers, key=lambda x: datetime.datetime.strptime(x["publication_date"], "%Y-%m-%d"))
+    is_potentially_predatory = _extract_field(publications, "is_potentially_predatory")
+    papers = [
+        paper
+        for paper, is_predatory in zip(papers, is_potentially_predatory, strict=True)
+        if (is_predatory is None) or (not is_predatory)
+    ]
+    papers = sorted(papers, key=lambda paper: datetime.datetime.strptime(paper["publication_date"], "%Y-%m-%d"))
 
     metadata = {
-        "since": papers_fetched.get("since"),
-        "until": papers_fetched.get("until"),
+        "since": fetched_papers.get("since"),
+        "until": fetched_papers.get("until"),
     }
 
     return {"metadata": metadata, "papers": papers}
@@ -88,14 +95,21 @@ def _extract_field(list_of_dics: list[dict], field: str) -> list:
     return [_dict.get(field) if _dict is not None else None for _dict in list_of_dics]
 
 
-def formatted_text(raw_papers: dict) -> str:
+def format_paper_overview(raw_papers: dict, format_type: Literal["plain", "slack", "discord"] = "plain") -> str:
     """Generate an overview of the fetched papers."""
+    assert "metadata" in raw_papers, "The input dictionary must contain a 'metadata' key."
+    assert "papers" in raw_papers, "The input dictionary must contain a 'papers' key."
 
-    def format_paper(paper):
-        url_prefix = "🔗" if len(paper["urls"]) > 0 else "❌"
-        output = f"- {url_prefix} {paper['title']}"
-        # output += f" ({paper['urls']})"
-        return output
+    FORMAT_TYPES = {
+        "plain": PlainFormatter(),
+        "slack": SlackFormatter(),
+        "discord": DiscordFormatter(),
+    }
+
+    if format_type not in FORMAT_TYPES:
+        raise ValueError(f"Formatter {format_type} is not supported.")
+
+    formatter = FORMAT_TYPES[format_type]
 
     metadata = raw_papers["metadata"]
     papers_fetched = raw_papers["papers"]
@@ -103,14 +117,106 @@ def formatted_text(raw_papers: dict) -> str:
     preprints = [paper for paper in papers_fetched if not paper["is_paper"]]
     papers = [paper for paper in papers_fetched if paper["is_paper"]]
 
-    preprints_text = "".join([format_paper(paper) + "\n" for paper in preprints])
-    papers_text = "".join([format_paper(paper) + "\n" for paper in papers])
-
-    start_date_suffix = f" since {metadata['since']}" if metadata.get("since") else ""
+    since = metadata.get("since")
 
     output = ""
-    output += f"📅 Found {len(papers_fetched)} new preprints and papers{start_date_suffix}.\n\n"
-    output += f"📄 *Preprints*:\n{preprints_text}\n" if preprints else ""
-    output += f"📝 *Papers*:\n{papers_text}\n" if papers else ""
+    output += _divide(_format_summary_section(preprints, papers, since, formatter))
+    output += _divide(_format_preprint_section(preprints, formatter))
+    output += _format_paper_section(papers, formatter)
+    return output
+
+
+def _divide(text: str) -> str:
+    return "" if text == "" else f"{text}\n"
+
+
+def _format_summary_section(
+    preprints: list[dict], papers: list[dict], since: datetime.date, formatter: "Formatter"
+) -> str:
+    output = f"🔍 Found {len(preprints)} preprints and {len(papers)} papers"
+
+    if since:
+        output += f" since {since}"
+
+    output += ".\n"
 
     return output
+
+
+def _format_preprint_section(preprints: list[dict], formatter: "Formatter") -> str:
+    if not preprints:
+        return ""
+
+    preprint_items = [_format_paper_element(preprint, formatter) for preprint in preprints]
+    preprint_list = "".join(preprint + "\n" for preprint in preprint_items)
+
+    header = formatter.bold("Preprints")
+    return f"📄 {header}:\n{preprint_list}\n"
+
+
+def _format_paper_section(papers: list[dict], formatter: "Formatter") -> str:
+    if not papers:
+        return ""
+
+    paper_items = [_format_paper_element(paper, formatter) for paper in papers]
+    paper_list = "".join(paper + "\n" for paper in paper_items)
+
+    header = formatter.bold("Papers")
+    return f"📝 {header}:\n{paper_list}\n"
+
+
+def _format_paper_element(paper: dict, formatter: "Formatter") -> str:
+    title = paper["title"]
+    urls = paper["urls"]
+    url = urls[-1] if len(urls) > 0 else None
+
+    link = formatter.linkify(title, url)
+    item = formatter.itemize(link)
+    return item
+
+
+class Formatter:
+    def linkify(self, text: str, url: str) -> str:
+        """Linkify a text with a URL."""
+        raise NotImplementedError
+
+    def itemize(self, text: str) -> str:
+        """Itemize a text."""
+        raise NotImplementedError
+
+    def bold(self, text: str) -> str:
+        """Bold a text."""
+        raise NotImplementedError
+
+
+class SlackFormatter(Formatter):
+    def linkify(self, text: str, url: str) -> str:
+        return f"<{url}|{text}>" if url is not None else text
+
+    def itemize(self, text: str) -> str:
+        return f"- {text}"
+
+    def bold(self, text: str) -> str:
+        return f"*{text}*"
+
+
+class DiscordFormatter(Formatter):
+    def linkify(self, text: str, url: str) -> str:
+        return f"[{text}]({url})" if url is not None else text
+
+    def itemize(self, text: str) -> str:
+        return f"- {text}"
+
+    def bold(self, text: str) -> str:
+        return f"**{text}**"
+
+
+class PlainFormatter(Formatter):
+    def linkify(self, text: str, url: str) -> str:
+        return f"{text} ({url})" if url is not None else text
+
+    def itemize(self, text: str) -> str:
+        return f"- {text}"
+
+    def bold(self, text: str) -> str:
+        return f"*{text}*"

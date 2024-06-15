@@ -1,4 +1,5 @@
 findpapers
 PyYAML
-discord.py
 python-dotenv
+discord.py
+slack_bolt
