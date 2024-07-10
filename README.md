@@ -4,7 +4,7 @@ A [client] bot to retrieve scientific papers from [database].
 
 **Clients**: slack, discord.
 
-**Databases**: ACM, arXiv, bioRxiv, medRxiv, PubMed.
+**Databases**: Semantic Scholar (ACM, arXiv, bioRxiv, medRxiv, PubMed, ...).
 
 ## Installation
 
