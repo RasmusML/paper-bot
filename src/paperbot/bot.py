@@ -108,13 +108,13 @@ def format_paper_overview(
     papers = [paper for paper in papers if paper["is_paper"]]
 
     output = ""
-    output += _divide(_format_summary_section(preprints, papers, since, formatter))
-    output += _divide(_format_preprint_section(preprints, formatter))
+    output += _newline(_format_summary_section(preprints, papers, since, formatter))
+    output += _newline(_format_preprint_section(preprints, formatter))
     output += _format_paper_section(papers, formatter)
     return output
 
 
-def _divide(text: str) -> str:
+def _newline(text: str) -> str:
     return "" if text == "" else f"{text}\n"
 
 
@@ -124,7 +124,8 @@ def _format_summary_section(
     n_preprints = formatter.bold(f"{len(preprints)}")
     n_papers = formatter.bold(f"{len(papers)}")
 
-    output = f"🔍 Found {n_preprints} preprints and {n_papers} papers"
+    paperbot = formatter.linkify("PaperBot", "https://github.com/RasmusML/paper-bot")
+    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers"
 
     if since:
         since_date = formatter.bold(f"{since}")
