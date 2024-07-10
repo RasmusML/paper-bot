@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 HELP_INFO = """
 *PaperBot Usage*
 - Use `/paperbot <query>,<date_since>` to fetch papers.
-- Example: `/paperbot ("machine learning" | "ML") + "AMP",2022-01-01
+- Example: `/paperbot ("machine learning" | "ML") + "AMP",2022-01-01`
 """
 
 TEMPLATE_QUERIES_DIR = "queries/"

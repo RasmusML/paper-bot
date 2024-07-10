@@ -31,10 +31,10 @@ def fetch_papers(
     until: datetime.date = None,
 ):
     """Fetch papers."""
-    publication_period = _format_publication_period(since, until)
     fields = "title,url,externalIds,publicationTypes,publicationDate,year"
-    res = _search_bulk(query, fields, publication_period)
-    return res
+    publication_period = _format_publication_period(since, until)
+    result = _search_bulk(query, fields, publication_period)
+    return result
 
 
 def _get_date_format(date: datetime.date) -> str:
@@ -75,11 +75,8 @@ def _extract_paper_data(paper: dict) -> dict:
 
 def _preprocess_papers(raw_papers: dict) -> list[dict]:
     """Prepare the fetched papers for further processing."""
-    # @TODO: handle total == 0
-
     papers = [_extract_paper_data(paper) for paper in raw_papers["data"]]
     papers = sorted(papers, key=lambda paper: datetime.datetime.strptime(paper["publication_date"], "%Y-%m-%d"))
-
     return papers
 
 
@@ -124,10 +121,14 @@ def _divide(text: str) -> str:
 def _format_summary_section(
     preprints: list[dict], papers: list[dict], since: datetime.date, formatter: "Formatter"
 ) -> str:
-    output = f"🔍 Found {len(preprints)} preprints and {len(papers)} papers"
+    n_preprints = formatter.bold(f"{len(preprints)}")
+    n_papers = formatter.bold(f"{len(papers)}")
+
+    output = f"🔍 Found {n_preprints} preprints and {n_papers} papers"
 
     if since:
-        output += f" since {since}"
+        since_date = formatter.bold(f"{since}")
+        output += f" since {since_date}"
 
     output += ".\n"
 
@@ -142,7 +143,7 @@ def _format_preprint_section(preprints: list[dict], formatter: "Formatter") -> s
     preprint_list = "".join(preprint + "\n" for preprint in preprint_items)
 
     header = formatter.bold("Preprints")
-    return f"📄 {header}:\n{preprint_list}\n"
+    return f"📝 {header}:\n{preprint_list}\n"
 
 
 def _format_paper_section(papers: list[dict], formatter: "Formatter") -> str:
@@ -153,7 +154,7 @@ def _format_paper_section(papers: list[dict], formatter: "Formatter") -> str:
     paper_list = "".join(paper + "\n" for paper in paper_items)
 
     header = formatter.bold("Papers")
-    return f"📝 {header}:\n{paper_list}\n"
+    return f"🗞️ {header}:\n{paper_list}\n"
 
 
 def _format_paper_element(paper: dict, formatter: "Formatter") -> str:
@@ -165,7 +166,7 @@ def _format_paper_element(paper: dict, formatter: "Formatter") -> str:
     return item
 
 
-def _get_url_from_doi(doi_id: str):
+def _get_url_from_doi(doi_id: str) -> str:
     return f"https://doi.org/{doi_id}"
 
 
