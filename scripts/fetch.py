@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -30,22 +31,18 @@ def fetch_papers():
     config = load_config("./configs/config.yaml")
 
     query = config["query"]
-    limit_per_database = config.get("limit_per_database")
     since = config.get("since")
     until = config.get("until")
 
-    date_today = datetime.today().strftime("%Y-%m-%d")
-    output_path = f"outputs/papers_{date_today}.json"
-
     logging.info("Fetching papers...")
-    paperbot.fetch_papers(
-        output_path=output_path,
+    papers = paperbot.fetch_papers(
         query=query,
-        limit_per_database=limit_per_database,
         since=since,
         until=until,
     )
     logging.info("Done fetching papers.")
+
+    print(json.dumps(papers, indent=2))
 
 
 if __name__ == "__main__":

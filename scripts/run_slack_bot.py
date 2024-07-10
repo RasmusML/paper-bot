@@ -20,11 +20,10 @@ logger = logging.getLogger(__name__)
 HELP_INFO = """
 *PaperBot Usage*
 - Use `/paperbot <query>,<date_since>` to fetch papers.
-- Example: `/paperbot ([machine learning] OR [ML]) AND [AMP],2022-01-01
+- Example: `/paperbot ("machine learning" | "ML") + "AMP",2022-01-01
 """
 
 TEMPLATE_QUERIES_DIR = "queries/"
-OUTPUT_PATH = "outputs/slack_bot_papers.json"
 
 
 load_dotenv()
@@ -57,13 +56,13 @@ def paperbot(ack, say, body):
         return
 
     try:
-        pb.fetch_papers(OUTPUT_PATH, query, since=since)
+        papers = pb.fetch_papers(query, since=since)
     except ValueError:
         say("Invalid query. Please check the syntax.")
         return
 
-    papers = pb.load_papers(OUTPUT_PATH)
-    text = pb.format_paper_overview(papers, "slack")
+    papers = pb.prepare_papers(papers)
+    text = pb.format_paper_overview(papers, since, "slack")
 
     say(text)
 

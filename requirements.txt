@@ -1,5 +1,5 @@
-findpapers
 PyYAML
 python-dotenv
 discord.py
 slack_bolt
+types-requests

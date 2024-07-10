@@ -1,106 +1,101 @@
 import datetime
-import json
 import logging
-import os
 from pathlib import Path
 from typing import Literal
 
-import findpapers
+import requests
 
 logger = logging.getLogger(__name__)
 
 
+def _search_bulk(
+    query: str, fields: str = None, publicationDateOrYear: str = None, publicationTypes: str = None, token: str = None
+) -> dict:
+    # Reference: https://api.semanticscholar.org/api-docs/graph
+    req = requests.get(
+        "https://api.semanticscholar.org/graph/v1/paper/search/bulk",
+        params={
+            "query": query,
+            "fields": fields,
+            "publicationDateOrYear": publicationDateOrYear,
+            "publicationTypes": publicationTypes,
+            "token": token,
+        },
+    )
+    return req.json()
+
+
 def fetch_papers(
-    output_path: str,
     query: str,
-    limit_per_database: int = 20,
     since: datetime.date = None,
     until: datetime.date = None,
-    overwrite: bool = True,
 ):
-    """Fetch papers and save them to a JSON file."""
-    if overwrite:
-        try:
-            os.remove(output_path)
-        except FileNotFoundError:
-            pass
-
-    findpapers.search(
-        outputpath=output_path,
-        query=query,
-        limit_per_database=limit_per_database,
-        since=since,
-        until=until,
-        verbose=False,
-    )
+    """Fetch papers."""
+    publication_period = _format_publication_period(since, until)
+    fields = "title,url,externalIds,publicationTypes,publicationDate,year"
+    res = _search_bulk(query, fields, publication_period)
+    return res
 
 
-def load_papers(path: str) -> dict:
-    """Read and prepare the fetched papers."""
-    papers_fetched = _load_cached_papers(path)
-    papers = _prepare_papers(papers_fetched)
+def _get_date_format(date: datetime.date) -> str:
+    return date.strftime("%Y-%m-%d")
+
+
+def _format_publication_period(since: datetime.date, until: datetime.date) -> str | None:
+    if (since is None) and (until is None):
+        return None
+
+    since_str = _get_date_format(since) if since is not None else ""
+    until_str = _get_date_format(until) if until is not None else ""
+
+    return f"{since_str}:{until_str}"
+
+
+def _extract_paper_data(paper: dict) -> dict:
+    title = paper["title"]
+    doi = paper["externalIds"].get("DOI")
+    semanticscholar_url = paper["url"]
+    publication_type = paper["publicationTypes"]
+    publication_date = paper["publicationDate"]
+    year = paper["year"]
+
+    if publication_date is None:
+        publication_date = f"{year}-01-01"
+
+    url = semanticscholar_url if doi is None else _get_url_from_doi(doi)
+
+    return {
+        "title": title,
+        "url": url,
+        "publication_type": publication_type,
+        "publication_date": publication_date,
+        "is_paper": "JournalArticle" in publication_type if publication_type else False,
+    }
+
+
+def _preprocess_papers(raw_papers: dict) -> list[dict]:
+    """Prepare the fetched papers for further processing."""
+    # @TODO: handle total == 0
+
+    papers = [_extract_paper_data(paper) for paper in raw_papers["data"]]
+    papers = sorted(papers, key=lambda paper: datetime.datetime.strptime(paper["publication_date"], "%Y-%m-%d"))
+
     return papers
 
 
-def _load_cached_papers(path: str) -> dict:
-    """Read the fetched papers from a JSON file."""
-    with open(path) as f:
-        results = json.load(f)
-    return results
-
-
-def _prepare_papers(fetched_papers: dict) -> dict:
+def prepare_papers(raw_papers: dict) -> list[dict]:
     """Prepare the fetched papers for further processing."""
-    raw_papers = fetched_papers["papers"]
-
-    titles = _extract_field(raw_papers, "title")
-    authors = _extract_field(raw_papers, "authors")
-    abstracts = _extract_field(raw_papers, "abstract")
-    urls = _extract_field(raw_papers, "urls")
-    publication_dates = _extract_field(raw_papers, "publication_date")
-    publications = _extract_field(raw_papers, "publication")
-    publication_types = _extract_field(publications, "category")
-
-    papers = [
-        {
-            "title": title,
-            "authors": author,
-            "abstract": abstract,
-            "urls": url,
-            "publication_type": publication_type,
-            "publication_date": publication_date,
-            "is_paper": publication_type == "Journal",
-        }
-        for title, author, abstract, url, publication_date, publication_type in zip(
-            titles, authors, abstracts, urls, publication_dates, publication_types, strict=True
-        )
-    ]
-
-    is_potentially_predatory = _extract_field(publications, "is_potentially_predatory")
-    papers = [
-        paper
-        for paper, is_predatory in zip(papers, is_potentially_predatory, strict=True)
-        if (is_predatory is None) or (not is_predatory)
-    ]
-    papers = sorted(papers, key=lambda paper: datetime.datetime.strptime(paper["publication_date"], "%Y-%m-%d"))
-
-    metadata = {
-        "since": fetched_papers.get("since"),
-        "until": fetched_papers.get("until"),
-    }
-
-    return {"metadata": metadata, "papers": papers}
+    return _preprocess_papers(raw_papers)
 
 
-def _extract_field(list_of_dics: list[dict], field: str) -> list:
-    return [_dict.get(field) if _dict is not None else None for _dict in list_of_dics]
+# @TODO: https://discordpy.readthedocs.io/en/stable/faq.html#coroutines
+# https://requests.readthedocs.io/en/latest/user/advanced/#session-objects
 
 
-def format_paper_overview(raw_papers: dict, format_type: Literal["plain", "slack", "discord"] = "plain") -> str:
+def format_paper_overview(
+    papers: list[dict], since: datetime.date, format_type: Literal["plain", "slack", "discord"] = "plain"
+) -> str:
     """Generate an overview of the fetched papers."""
-    assert "metadata" in raw_papers, "The input dictionary must contain a 'metadata' key."
-    assert "papers" in raw_papers, "The input dictionary must contain a 'papers' key."
-
     FORMATTERS = {
         "plain": PlainFormatter(),
         "slack": SlackFormatter(),
@@ -112,13 +107,8 @@ def format_paper_overview(raw_papers: dict, format_type: Literal["plain", "slack
 
     formatter = FORMATTERS[format_type]
 
-    metadata = raw_papers["metadata"]
-    papers_fetched = raw_papers["papers"]
-
-    preprints = [paper for paper in papers_fetched if not paper["is_paper"]]
-    papers = [paper for paper in papers_fetched if paper["is_paper"]]
-
-    since = metadata.get("since")
+    preprints = [paper for paper in papers if not paper["is_paper"]]
+    papers = [paper for paper in papers if paper["is_paper"]]
 
     output = ""
     output += _divide(_format_summary_section(preprints, papers, since, formatter))
@@ -168,12 +158,15 @@ def _format_paper_section(papers: list[dict], formatter: "Formatter") -> str:
 
 def _format_paper_element(paper: dict, formatter: "Formatter") -> str:
     title = paper["title"]
-    urls = paper["urls"]
-    url = urls[-1] if len(urls) > 0 else None
+    url = paper["url"]
 
     link = formatter.linkify(title, url)
     item = formatter.itemize(link)
     return item
+
+
+def _get_url_from_doi(doi_id: str):
+    return f"https://doi.org/{doi_id}"
 
 
 class Formatter:
