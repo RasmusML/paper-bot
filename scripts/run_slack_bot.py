@@ -11,7 +11,6 @@ import logging
 import os
 
 import paperbot as pb
-import paperbot.formatter.rich_text as rt
 from dotenv import load_dotenv
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
