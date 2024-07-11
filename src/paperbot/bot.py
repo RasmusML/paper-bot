@@ -1,9 +1,12 @@
 import datetime
 import logging
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import requests
+
+import paperbot.formatter.slack as slk
+import paperbot.formatter.text as txt
 
 logger = logging.getLogger(__name__)
 
@@ -85,145 +88,36 @@ def prepare_papers(raw_papers: dict) -> list[dict]:
     return _preprocess_papers(raw_papers)
 
 
-# @TODO: https://discordpy.readthedocs.io/en/stable/faq.html#coroutines
-# https://requests.readthedocs.io/en/latest/user/advanced/#session-objects
-
-
-def format_paper_overview(
-    papers: list[dict], since: datetime.date, format_type: Literal["plain", "slack", "discord"] = "plain"
-) -> str:
-    """Generate an overview of the fetched papers."""
-    FORMATTERS = {
-        "plain": PlainFormatter(),
-        "slack": SlackFormatter(),
-        "discord": DiscordFormatter(),
-    }
-
-    if format_type not in FORMATTERS:
-        raise ValueError(f"Formatter {format_type} is not supported.")
-
-    formatter = FORMATTERS[format_type]
-
-    preprints = [paper for paper in papers if not paper["is_paper"]]
-    papers = [paper for paper in papers if paper["is_paper"]]
-
-    output = ""
-    output += _newline(_format_summary_section(preprints, papers, since, formatter))
-    output += _newline(_format_preprint_section(preprints, formatter))
-    output += _format_paper_section(papers, formatter)
-    return output
-
-
-def _newline(text: str) -> str:
-    return "" if text == "" else f"{text}\n"
-
-
-def _format_summary_section(
-    preprints: list[dict], papers: list[dict], since: datetime.date, formatter: "Formatter"
-) -> str:
-    n_preprints = formatter.bold(f"{len(preprints)}")
-    n_papers = formatter.bold(f"{len(papers)}")
-
-    paperbot = formatter.linkify("PaperBot", "https://github.com/RasmusML/paper-bot")
-    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers"
-
-    if since:
-        since_date = formatter.bold(f"{since}")
-        output += f" since {since_date}"
-
-    output += ".\n"
-
-    return output
-
-
-def _format_preprint_section(preprints: list[dict], formatter: "Formatter") -> str:
-    if not preprints:
-        return ""
-
-    preprint_items = [_format_paper_element(preprint, formatter) for preprint in preprints]
-    preprint_list = "".join(preprint + "\n" for preprint in preprint_items)
-
-    header = formatter.bold("Preprints")
-    return f"📝 {header}:\n{preprint_list}\n"
-
-
-def _format_paper_section(papers: list[dict], formatter: "Formatter") -> str:
-    if not papers:
-        return ""
-
-    paper_items = [_format_paper_element(paper, formatter) for paper in papers]
-    paper_list = "".join(paper + "\n" for paper in paper_items)
-
-    header = formatter.bold("Papers")
-    return f"🗞️ {header}:\n{paper_list}\n"
-
-
-def _format_paper_element(paper: dict, formatter: "Formatter") -> str:
-    title = paper["title"]
-    url = paper["url"]
-
-    link = formatter.linkify(title, url)
-    item = formatter.itemize(link)
-    return item
-
-
 def _get_url_from_doi(doi_id: str) -> str:
     return f"https://doi.org/{doi_id}"
 
 
-class Formatter:
-    def linkify(self, text: str, url: str) -> str:
-        """Linkify a text with a URL."""
-        raise NotImplementedError
-
-    def itemize(self, text: str) -> str:
-        """Itemize a text."""
-        raise NotImplementedError
-
-    def bold(self, text: str) -> str:
-        """Make text bold."""
-        raise NotImplementedError
+FORMATTER = {
+    "plain": txt.format_paper_overview_plain,
+    "slack": txt.format_paper_overview_slack,
+    "discord": txt.format_paper_overview_discord,
+    "slack-fancy": slk.format_paper_overview,
+}
 
 
-class SlackFormatter(Formatter):
-    def linkify(self, text: str, url: str) -> str:
-        return f"<{url}|{text}>" if url is not None else text
+def format_paper_overview(
+    papers: list[dict], since: datetime.date, format_type: Literal["plain", "slack", "discord", "slack-fancy"] = "plain"
+) -> str | list[Any]:
+    """Format the fetched papers."""
+    fmt = FORMATTER.get(format_type)
 
-    def itemize(self, text: str) -> str:
-        return f"- {text}"
+    if fmt is None:
+        raise ValueError(f"Invalid format type: {format_type}")
 
-    def bold(self, text: str) -> str:
-        return f"*{text}*"
-
-
-class DiscordFormatter(Formatter):
-    def linkify(self, text: str, url: str) -> str:
-        return f"[{text}]({url})" if url is not None else text
-
-    def itemize(self, text: str) -> str:
-        return f"- {text}"
-
-    def bold(self, text: str) -> str:
-        return f"**{text}**"
+    return fmt(papers, since)  # type: ignore
 
 
-class PlainFormatter(Formatter):
-    def linkify(self, text: str, url: str) -> str:
-        return f"{text} ({url})" if url is not None else text
-
-    def itemize(self, text: str) -> str:
-        return f"- {text}"
-
-    def bold(self, text: str) -> str:
-        return f"*{text}*"
-
-
-def read_queries_from_dir(queries_dir: str) -> dict[str, str]:
+def read_queries_from_dir(dir: str) -> dict[str, str]:
     """Read queries from text files in a directory and store them in a dictionary."""
-    queries_dir_pth = Path(queries_dir)
+    dir_pth = Path(dir)
 
     queries = {}
-    for query_pth in queries_dir_pth.glob("*.txt"):
+    for query_pth in dir_pth.glob("*.txt"):
         with open(query_pth) as f:
             query = f.read()
 
