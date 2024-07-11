@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def _search_bulk(
-    query: str, fields: str = None, publicationDateOrYear: str = None, publicationTypes: str = None, token: str = None
+    query: str, fields: str = None, publication_date_or_year: str = None, publication_types: str = None, token: str = None
 ) -> dict:
     # Reference: https://api.semanticscholar.org/api-docs/graph
     req = requests.get(
@@ -20,8 +20,8 @@ def _search_bulk(
         params={
             "query": query,
             "fields": fields,
-            "publicationDateOrYear": publicationDateOrYear,
-            "publicationTypes": publicationTypes,
+            "publicationDateOrYear": publication_date_or_year,
+            "publicationTypes": publication_types,
             "token": token,
         },
     )
@@ -114,14 +114,14 @@ def format_paper_overview(
 
 def read_queries_from_dir(dir: str) -> dict[str, str]:
     """Read queries from text files in a directory and store them in a dictionary."""
-    dir_pth = Path(dir)
+    query_paths = Path(dir)
 
     queries = {}
-    for query_pth in dir_pth.glob("*.txt"):
-        with open(query_pth) as f:
+    for path in query_paths.glob("*.txt"):
+        with open(path) as f:
             query = f.read()
 
-        filename = query_pth.stem
+        filename = path.stem
         queries[filename] = query
 
     return queries
