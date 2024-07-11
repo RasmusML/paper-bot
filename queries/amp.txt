@@ -1,5 +1,5 @@
 ("antimicrobial peptide" | "antimicrobial peptides")
 + 
-("discovery" | "discovering" | "generation" | "generating" | "design" | "designing" | "optimization" | "optimizing")
+("discovery" | "discovering" | "generation" | "generating" | "design" | "designing" | "optimization" | "optimizing" | "prediction" | "predicting")
 +
-("generative model" | "machine learning" | "AI" | "representation" | "network" | "embedding")
+("generative model" | "deep learning" | "machine learning" | "representation" | "neural network" | "bayesian")

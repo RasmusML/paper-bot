@@ -1,6 +1,5 @@
 import argparse
 import datetime
-import json
 import logging
 
 import paperbot
@@ -22,14 +21,19 @@ def fetch_papers(query: str, since: datetime.date, until: datetime.date):
     )
     logging.info("Done fetching papers.")
 
-    output = json.dumps(papers, indent=2)
-    logging.info(f"Output:\n{output}")
+    papers = paperbot.prepare_papers(papers)
+    overview = paperbot.format_paper_overview(papers, since, format_type="plain")
+
+    logging.info(overview)
+
+    n_papers = len(papers)
+    logging.info(f"Number of papers: {n_papers}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("query_file", type=str, help="Path to query file")
-    parser.add_argument("--since", type=str, help="Date since")
+    parser.add_argument("--since", type=str, help="Date since", default="2022-01-01")
     parser.add_argument("--until", type=str, help="Date until")
 
     args = parser.parse_args()

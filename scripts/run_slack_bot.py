@@ -7,6 +7,7 @@ References
 """
 
 import datetime
+import json
 import logging
 import os
 
@@ -33,6 +34,9 @@ app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
 def parse_arguments(text: str) -> list[str]:
     return text.strip().split(",")
+
+
+MAX_CHARACTERS_IN_BLOCKS = 20_000
 
 
 @app.command("/paperbot")
@@ -64,11 +68,13 @@ def paperbot(ack, body):
         return
 
     papers = pb.prepare_papers(papers)
-
     blocks = pb.format_paper_overview(papers, since, format_type="slack-fancy")
-    text = pb.format_paper_overview(papers, since, format_type="slack")
 
-    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks)
+    blocks_str = json.dumps(blocks)
+    blocks_str = None if len(blocks_str) >= MAX_CHARACTERS_IN_BLOCKS else blocks_str
+
+    text = pb.format_paper_overview(papers, since, format_type="slack")
+    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_str)
 
 
 if __name__ == "__main__":

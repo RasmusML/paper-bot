@@ -48,24 +48,24 @@ def format_paper_overview(all_papers: list[dict], since: datetime.date) -> list[
         papers_list += _format_paper_element(paper)
 
     # combine sections
-    result = []
-    result += [rt.rich_text_block([rt.rich_text_section(header)])]
+    blocks = []
+    blocks += [rt.rich_text_block([rt.rich_text_section(header)])]
 
     if n_preprints > 0:
-        result += [
+        blocks += [
             rt.divider_block(),
             rt.rich_text_block([rt.rich_text_section(preprint_list)]),
         ]
 
     if n_papers > 0:
-        result += [
+        blocks += [
             rt.divider_block(),
             rt.rich_text_block([rt.rich_text_section(papers_list)]),
         ]
 
-    result += [rt.divider_block()]
+    blocks += [rt.divider_block()]
 
-    return result
+    return blocks
 
 
 def _format_preprint_element(paper: dict) -> list[Any]:
