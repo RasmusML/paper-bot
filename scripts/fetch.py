@@ -32,17 +32,18 @@ def fetch_papers(query: str, since: datetime.date, until: datetime.date):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("query_file", type=str, help="Path to query file")
-    parser.add_argument("--since", type=str, help="Date since", default="2022-01-01")
-    parser.add_argument("--until", type=str, help="Date until")
+    parser.add_argument("query_file", type=str, help="Filename of a query in the directory \'queries/\'")
+    parser.add_argument("--since", type=str, help="Start date", default="2022-01-01")
+    parser.add_argument("--until", type=str, help="End date")
 
     args = parser.parse_args()
 
     template_queries = paperbot.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
-    query = template_queries.get(args.query_file)
 
-    if not query:
-        raise ValueError(f"Query file not found: {args.query_file}")
+    try:
+        query = template_queries[args.query_file]
+    except KeyError as err:
+        raise ValueError(f"Query file not found: \'{args.query_file}\'") from err
 
     since = datetime.date.fromisoformat(args.since) if args.since else None
     until = datetime.date.fromisoformat(args.until) if args.until else None
