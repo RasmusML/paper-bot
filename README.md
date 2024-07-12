@@ -1,4 +1,4 @@
-# <img src="imgs/icon.jpg" alt="drawing" width="40" align="center" /> paper-bot
+# <img src="imgs/icon.jpg" alt="drawing" width="40" align="center"/> paper-bot
 
 A [client] bot to retrieve scientific papers from [database].
 

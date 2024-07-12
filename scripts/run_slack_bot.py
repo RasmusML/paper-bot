@@ -56,7 +56,7 @@ def paperbot(ack, body):
     try:
         since = datetime.date.fromisoformat(date_since)
     except ValueError:
-        app.client.chat_postMessage(channel=channel_id, text="Invalid date format. Please use YYYY-MM-DD.")
+        app.client.chat_postMessage(channel=channel_id, text="Invalid date format. Please use `YYYY-MM-DD`.")
         return
 
     try:

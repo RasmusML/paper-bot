@@ -1,0 +1,7 @@
+("spatial")
++
+("multiomics" | "multi-omics" | "omics" | "DNA" | "ATAC" | "RNA" | "genomics" | "metagenomics" | "transcriptomics" | "proteomics")
++
+("single-cell" | "cell")
++
+("bayesian" | "probabilistic model" | "probabilistic modelling")

@@ -25,6 +25,7 @@ HELP_INFO = """
 """
 
 TEMPLATE_QUERIES_DIR = "queries/"
+MAX_MESSAGE_LENGTH = 2_000
 
 load_dotenv()
 
@@ -55,7 +56,6 @@ def decompose_text(text: str, max_length: int) -> list[str]:
 
     return texts
 
-MAX_MESSAGE_LENGTH = 2000
 
 async def send(ctx, text):
     decomposed_text = decompose_text(text, MAX_MESSAGE_LENGTH)
@@ -69,7 +69,7 @@ async def paperbot(ctx, query: str = None, date_since: str = None):
     if (query is None) or (date_since is None):
         return await send(ctx, HELP_INFO)
 
-    query = query.replace("\"", "'")
+    query = query.replace('"', "'")
 
     template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
     if query in template_queries:
@@ -89,6 +89,7 @@ async def paperbot(ctx, query: str = None, date_since: str = None):
     text = pb.format_paper_overview(papers, since, "discord")
 
     await send(ctx, text)
+
 
 if __name__ == "__main__":
     bot.run(os.environ["DISCORD_BOT_TOKEN"])

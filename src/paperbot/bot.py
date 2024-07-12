@@ -12,8 +12,12 @@ logger = logging.getLogger(__name__)
 
 
 def _search_bulk(
-    query: str, fields: str = None, publication_date_or_year: str = None, publication_types: str = None, token: str = None
-) -> dict:
+    query: str,
+    fields: str = None,
+    publication_date_or_year: str = None,
+    publication_types: str = None,
+    token: str = None,
+) -> dict[str, Any]:
     # Reference: https://api.semanticscholar.org/api-docs/graph
     req = requests.get(
         "https://api.semanticscholar.org/graph/v1/paper/search/bulk",
@@ -54,7 +58,7 @@ def _format_publication_period(since: datetime.date, until: datetime.date) -> st
     return f"{since_str}:{until_str}"
 
 
-def _extract_paper_data(paper: dict) -> dict:
+def _extract_paper_data(paper: dict[str, Any]) -> dict[str, Any]:
     title = paper["title"]
     doi = paper["externalIds"].get("DOI")
     semanticscholar_url = paper["url"]
@@ -76,14 +80,14 @@ def _extract_paper_data(paper: dict) -> dict:
     }
 
 
-def _preprocess_papers(raw_papers: dict) -> list[dict]:
+def _preprocess_papers(raw_papers: dict[str, Any]) -> list[dict[str, Any]]:
     """Prepare the fetched papers for further processing."""
     papers = [_extract_paper_data(paper) for paper in raw_papers["data"]]
     papers = sorted(papers, key=lambda paper: datetime.datetime.strptime(paper["publication_date"], "%Y-%m-%d"))
     return papers
 
 
-def prepare_papers(raw_papers: dict) -> list[dict]:
+def prepare_papers(raw_papers: dict[str, Any]) -> list[dict]:
     """Prepare the fetched papers for further processing."""
     return _preprocess_papers(raw_papers)
 
@@ -101,13 +105,15 @@ FORMATTER = {
 
 
 def format_paper_overview(
-    papers: list[dict], since: datetime.date, format_type: Literal["plain", "slack", "discord", "slack-fancy"] = "plain"
+    papers: list[dict[str, Any]],
+    since: datetime.date,
+    format_type: Literal["plain", "slack", "discord", "slack-fancy"] = "plain",
 ) -> str | list[Any]:
     """Format the fetched papers."""
-    fmt = FORMATTER.get(format_type)
-
-    if fmt is None:
-        raise ValueError(f"Invalid format type: {format_type}")
+    try:
+        fmt = FORMATTER[format_type]
+    except KeyError as err:
+        raise ValueError(f"Invalid format type: {format_type}") from err
 
     return fmt(papers, since)  # type: ignore
 
