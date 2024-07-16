@@ -28,6 +28,5 @@ if __name__ == "__main__":
     parser.add_argument("title", type=str, help="Title of reference paper")
 
     args = parser.parse_args()
-    title = "Learning single-cell perturbation responses using neural optimal transport"
 
     fetch_papers(args.title)

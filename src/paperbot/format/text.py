@@ -3,7 +3,7 @@
 import datetime
 
 
-class Formatter:
+class ElementFormatter:
     def link(self, text: str, url: str) -> str:
         """Linkify a text with a URL."""
         raise NotImplementedError
@@ -17,7 +17,7 @@ class Formatter:
         raise NotImplementedError
 
 
-class SlackFormatter(Formatter):
+class SlackElementFormatter(ElementFormatter):
     def link(self, text: str, url: str) -> str:
         return f"<{url}|{text}>" if url is not None else text
 
@@ -28,7 +28,7 @@ class SlackFormatter(Formatter):
         return f"*{text}*"
 
 
-class DiscordFormatter(Formatter):
+class DiscordElementFormatter(ElementFormatter):
     def link(self, text: str, url: str) -> str:
         return f"[{text}]({url})" if url is not None else text
 
@@ -39,7 +39,7 @@ class DiscordFormatter(Formatter):
         return f"**{text}**"
 
 
-class PlainFormatter(Formatter):
+class PlainFormatter(ElementFormatter):
     def link(self, text: str, url: str) -> str:
         return f"{text} ({url})" if url is not None else text
 
@@ -50,25 +50,25 @@ class PlainFormatter(Formatter):
         return f"*{text}*"
 
 
-def format_query_paper_for_plain(papers: list[dict], since: datetime.date) -> str:
+def format_query_papers_for_plain(papers: list[dict], since: datetime.date) -> str:
     """Generate an overview of the fetched papers in plain text."""
-    return _format_paper_overview(papers, since, PlainFormatter())
+    return _format_query_papers(papers, since, PlainFormatter())
 
 
 def format_query_papers_for_slack(papers: list[dict], since: datetime.date) -> str:
     """Generate an overview of the fetched papers in Slack format."""
-    return _format_paper_overview(papers, since, SlackFormatter())
+    return _format_query_papers(papers, since, SlackElementFormatter())
 
 
 def format_query_papers_for_discord(papers: list[dict], since: datetime.date) -> str:
     """Generate an overview of the fetched papers in Discord format."""
-    return _format_paper_overview(papers, since, DiscordFormatter())
+    return _format_query_papers(papers, since, DiscordElementFormatter())
 
 
-def _format_paper_overview(
+def _format_query_papers(
     papers: list[dict],
     since: datetime.date,
-    fmt: Formatter,
+    fmt: ElementFormatter,
 ) -> str:
     preprints = [paper for paper in papers if not paper["is_paper"]]
     papers = [paper for paper in papers if paper["is_paper"]]
@@ -84,7 +84,9 @@ def _newline(text: str) -> str:
     return "" if text == "" else f"{text}\n"
 
 
-def _format_summary_section(preprints: list[dict], papers: list[dict], since: datetime.date, fmt: Formatter) -> str:
+def _format_summary_section(
+    preprints: list[dict], papers: list[dict], since: datetime.date, fmt: ElementFormatter
+) -> str:
     n_preprints = fmt.bold(f"{len(preprints)}")
     n_papers = fmt.bold(f"{len(papers)}")
 
@@ -100,7 +102,7 @@ def _format_summary_section(preprints: list[dict], papers: list[dict], since: da
     return output
 
 
-def _format_preprint_section(preprints: list[dict], fmt: Formatter) -> str:
+def _format_preprint_section(preprints: list[dict], fmt: ElementFormatter) -> str:
     if not preprints:
         return ""
 
@@ -111,7 +113,7 @@ def _format_preprint_section(preprints: list[dict], fmt: Formatter) -> str:
     return f"📝 {header}:\n{preprint_list}\n"
 
 
-def _format_paper_section(papers: list[dict], fmt: Formatter) -> str:
+def _format_paper_section(papers: list[dict], fmt: ElementFormatter) -> str:
     if not papers:
         return ""
 
@@ -122,7 +124,7 @@ def _format_paper_section(papers: list[dict], fmt: Formatter) -> str:
     return f"🗞️ {header}:\n{paper_list}\n"
 
 
-def _format_paper_element(paper: dict, fmt: Formatter) -> str:
+def _format_paper_element(paper: dict, fmt: ElementFormatter) -> str:
     title = paper["title"]
     url = paper["url"]
 

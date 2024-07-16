@@ -8,7 +8,7 @@ import paperbot.format.text as txt
 logger = logging.getLogger(__name__)
 
 FORMATTERS = {
-    "plain": txt.format_query_paper_for_plain,
+    "plain": txt.format_query_papers_for_plain,
     "slack": txt.format_query_papers_for_slack,
     "discord": txt.format_query_papers_for_discord,
     "slack-fancy": slk.format_query_papers,
