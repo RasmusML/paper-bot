@@ -3,10 +3,10 @@
 import datetime
 from typing import Any
 
-import paperbot.formatter.rich_text as rt
+import paperbot.format.rich_text as rt
 
 
-def format_paper_overview(all_papers: list[dict], since: datetime.date) -> list[Any]:
+def format_query_papers(all_papers: list[dict], since: datetime.date) -> list[Any]:
     preprints = [paper for paper in all_papers if not paper["is_paper"]]
     papers = [paper for paper in all_papers if paper["is_paper"]]
 

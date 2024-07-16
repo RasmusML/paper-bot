@@ -60,18 +60,17 @@ def paperbot(ack, body):
         return
 
     try:
-        papers = pb.fetch_papers(query, since=since)
+        papers = pb.fetch_papers_from_query(query, since=since)
     except ValueError:
         app.client.chat_postMessage(channel=channel_id, text="Invalid query. Please check the syntax.")
         return
 
-    papers = pb.prepare_papers(papers)
-    blocks = pb.format_paper_overview(papers, since, format_type="slack-fancy")
+    blocks = pb.format_query_papers(papers, since, format_type="slack-fancy")
 
     blocks_str = json.dumps(blocks)
     blocks_str = None if len(blocks_str) > MAX_CHARACTERS_IN_BLOCKS else blocks_str
 
-    text = pb.format_paper_overview(papers, since, format_type="slack")
+    text = pb.format_query_papers(papers, since, format_type="slack")
     app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_str)
 
 

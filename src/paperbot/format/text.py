@@ -50,17 +50,17 @@ class PlainFormatter(Formatter):
         return f"*{text}*"
 
 
-def format_paper_overview_plain(papers: list[dict], since: datetime.date) -> str:
+def format_query_paper_for_plain(papers: list[dict], since: datetime.date) -> str:
     """Generate an overview of the fetched papers in plain text."""
     return _format_paper_overview(papers, since, PlainFormatter())
 
 
-def format_paper_overview_slack(papers: list[dict], since: datetime.date) -> str:
+def format_query_papers_for_slack(papers: list[dict], since: datetime.date) -> str:
     """Generate an overview of the fetched papers in Slack format."""
     return _format_paper_overview(papers, since, SlackFormatter())
 
 
-def format_paper_overview_discord(papers: list[dict], since: datetime.date) -> str:
+def format_query_papers_for_discord(papers: list[dict], since: datetime.date) -> str:
     """Generate an overview of the fetched papers in Discord format."""
     return _format_paper_overview(papers, since, DiscordFormatter())
 

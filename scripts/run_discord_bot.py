@@ -63,7 +63,7 @@ async def send(ctx, text):
         await ctx.send(text)
 
 
-@bot.command()
+@bot.command() # type: ignore
 async def paperbot(ctx, query: str = None, date_since: str = None):
     """Fetch papers and send them to the channel."""
     if (query is None) or (date_since is None):
@@ -81,12 +81,11 @@ async def paperbot(ctx, query: str = None, date_since: str = None):
         return await send(ctx, "Invalid date format. Please use YYYY-MM-DD.")
 
     try:
-        papers = pb.fetch_papers(query, since=since)
+        papers = pb.fetch_papers_from_query(query, since=since)
     except ValueError:
         return await send(ctx, "Invalid query. Please check the syntax.")
 
-    papers = pb.prepare_papers(papers)
-    text = pb.format_paper_overview(papers, since, "discord")
+    text = pb.format_query_papers(papers, since, "discord")
 
     await send(ctx, text)
 
