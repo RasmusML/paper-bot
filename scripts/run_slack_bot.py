@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 PAPERFIND_HELP_INFO = """
 *Usage*
-- Use `/paperfind <query> <date_since>` to fetch papers.
+- Use `/paperfind <query>,<date_since>` to fetch papers.
 - Example: `/paperfind ("machine learning" | "ML") + "AMP",2022-01-01`
 """
 
@@ -79,6 +79,9 @@ def paperfind(ack, body):
         papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
     except ValueError:
         app.client.chat_postMessage(channel=channel_id, text="Invalid query. Please check the syntax.")
+        return
+    except RuntimeError:
+        app.client.chat_postMessage(channel=channel_id, text="Something went very wrong...")
         return
 
     blocks = pb.format_query_papers(papers, since, format_type="slack-rich")

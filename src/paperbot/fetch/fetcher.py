@@ -36,6 +36,9 @@ def fetch_papers_from_query(
     publication_period = _format_publication_period(since, until)
     raw_papers = ss.fetch_papers_from_query(query, fields, publication_period)
 
+    if "error" in raw_papers:
+        raise RuntimeError("Bad query!")
+
     papers = [_extract_paper_data(paper) for paper in raw_papers["data"]]
     papers = _remove_duplicate_papers(papers)
     papers = _sort_papers_by_date(papers)

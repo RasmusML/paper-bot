@@ -94,6 +94,8 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
         papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
     except ValueError:
         return await send(ctx, "Invalid query. Please check the syntax.")
+    except RuntimeError:
+        return await send(ctx, "Something went very wrong...")
 
     text = pb.format_query_papers(papers, since, "discord")
 
