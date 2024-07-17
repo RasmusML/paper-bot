@@ -10,10 +10,10 @@ logging.basicConfig(level=logging.INFO)
 TEMPLATE_QUERIES_DIR = "queries/"
 
 
-def fetch_papers(title: str, max_papers: int):
+def fetch_papers(title: str, limit: int):
     """Fetch papers."""
     logging.info("Fetching papers...")
-    reference_paper, similar_papers = paperbot.fetch_similar_papers(title, max_papers)
+    reference_paper, similar_papers = paperbot.fetch_similar_papers(title, limit)
     logging.info("Done fetching papers.")
 
     outpput = paperbot.format_similar_papers(reference_paper, similar_papers, title, format_type="plain")
@@ -26,8 +26,8 @@ def fetch_papers(title: str, max_papers: int):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("title", type=str, help="Title of reference paper")
-    parser.add_argument("--max_papers", type=str, help="Max number of papers to fetch", default=15)
+    parser.add_argument("--limit", type=str, help="Max number of papers to fetch", default=15)
 
     args = parser.parse_args()
 
-    fetch_papers(args.title, args.max_papers)
+    fetch_papers(args.title, args.limit)

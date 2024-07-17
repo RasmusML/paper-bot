@@ -31,7 +31,11 @@ PAPERLIKE_HELP_INFO = """
 """
 
 TEMPLATE_QUERIES_DIR = "queries/"
-MAX_MESSAGE_LENGTH = 2_000
+
+# Maximum number of papers to fetch
+QUERY_PAPER_LIMIT = 100
+TEMPLATE_QUERY_PAPER_LIMIT = 500
+SIMILAR_PAPERS_LIMIT = 50
 
 load_dotenv()
 
@@ -64,7 +68,7 @@ def decompose_text(text: str, max_length: int) -> list[str]:
 
 
 async def send(ctx, text):
-    decomposed_text = decompose_text(text, MAX_MESSAGE_LENGTH)
+    decomposed_text = decompose_text(text, max_length=2_000)
     for text in decomposed_text:
         await ctx.send(text)
 
@@ -75,11 +79,11 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
     if (query is None) or (date_since is None):
         return await send(ctx, PAPERFIND_HELP_INFO)
 
-    query = query.replace('"', "'")
+    query_or_filename = query.replace('"', "'")
 
     template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
-    if query in template_queries:
-        query = template_queries[query]
+    query = template_queries.get(query_or_filename, query_or_filename)
+    limit = TEMPLATE_QUERY_PAPER_LIMIT if query_or_filename in template_queries else QUERY_PAPER_LIMIT
 
     try:
         since = datetime.date.fromisoformat(date_since)
@@ -87,7 +91,7 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
         return await send(ctx, "Invalid date format. Please use YYYY-MM-DD.")
 
     try:
-        papers = pb.fetch_papers_from_query(query, since=since)
+        papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
     except ValueError:
         return await send(ctx, "Invalid query. Please check the syntax.")
 
@@ -102,7 +106,7 @@ async def paperlike(ctx, title: str = None):
     if title is None:
         return await send(ctx, PAPERLIKE_HELP_INFO)
 
-    reference_paper, similar_papers = pb.fetch_similar_papers(title)
+    reference_paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
     text = pb.format_similar_papers(reference_paper, similar_papers, title, "discord")
 
     await send(ctx, text)

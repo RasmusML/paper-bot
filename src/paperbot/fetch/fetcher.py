@@ -4,10 +4,10 @@ from typing import Any
 import paperbot.fetch.semantic_scholar as ss
 
 
-def fetch_similar_papers(paper_title: str, max_papers=5) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+def fetch_similar_papers(title: str, limit=5) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Fetch similar papers."""
     fields = "paperId,title,url,externalIds"
-    raw_paper = ss.fetch_paper_from_title(paper_title, fields)
+    raw_paper = ss.fetch_paper_from_title(title, fields)
 
     if ("error" in raw_paper) and (raw_paper["error"] == "Title match not found"):
         return None, None
@@ -16,7 +16,7 @@ def fetch_similar_papers(paper_title: str, max_papers=5) -> tuple[dict[str, Any]
 
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year"
     raw_similar_papers = ss.fetch_similar_papers_from_id(
-        reference_paper["id"], from_pool="all-cs", limit=max_papers, fields=fields
+        reference_paper["id"], from_pool="all-cs", limit=limit, fields=fields
     )
 
     similar_papers = [_extract_paper_data(paper) for paper in raw_similar_papers["recommendedPapers"]]
@@ -29,7 +29,7 @@ def fetch_papers_from_query(
     query: str,
     since: datetime.date = None,
     until: datetime.date = None,
-    max_papers: int = None,
+    limit: int = None,
 ) -> list[dict[str, Any]]:
     """Fetch papers."""
     fields = "title,url,externalIds,publicationTypes,publicationDate,year"
@@ -39,12 +39,12 @@ def fetch_papers_from_query(
     papers = [_extract_paper_data(paper) for paper in raw_papers["data"]]
     papers = _remove_duplicate_papers(papers)
     papers = _sort_papers_by_date(papers)
-    papers = _filter_max_papers(papers, max_papers) if max_papers else papers
+    papers = _filter_by_paper_limit(papers, limit) if limit else papers
 
     return papers
 
 
-def _filter_max_papers(papers: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
+def _filter_by_paper_limit(papers: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
     return papers[-limit:]
 
 
