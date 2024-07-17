@@ -10,7 +10,7 @@ def read_queries_from_dir(dir: str) -> dict[str, str]:
         with open(path) as f:
             query = f.read()
 
-        filename = path.stem
-        queries[filename] = query
+        filename_no_ext = path.stem
+        queries[filename_no_ext] = query
 
     return queries

@@ -39,7 +39,7 @@ class DiscordElementFormatter(ElementFormatter):
         return f"**{text}**"
 
 
-class PlainFormatter(ElementFormatter):
+class PlainElementFormatter(ElementFormatter):
     def link(self, text: str, url: str) -> str:
         return f"{text} ({url})" if url is not None else text
 
@@ -50,22 +50,52 @@ class PlainFormatter(ElementFormatter):
         return f"*{text}*"
 
 
-def format_query_papers_for_plain(papers: list[dict], since: datetime.date) -> str:
-    """Generate an overview of the fetched papers in plain text."""
-    return _format_query_papers(papers, since, PlainFormatter())
+class TextFormatter:
+    def __init__(self, element_formatter: ElementFormatter):
+        self.element_formatter = element_formatter
+
+    def format_query_papers(self, all_papers: list[dict], since: datetime.date) -> str:
+        """Format query papers."""
+        return format_query_papers(all_papers, since, self.element_formatter)
+
+    def format_similar_papers(
+        self, reference_paper: dict, similar_papers: list[dict], reference_paper_title: str
+    ) -> str:
+        """Format similar papers."""
+        return format_similar_papers(reference_paper, similar_papers, reference_paper_title, self.element_formatter)
 
 
-def format_query_papers_for_slack(papers: list[dict], since: datetime.date) -> str:
-    """Generate an overview of the fetched papers in Slack format."""
-    return _format_query_papers(papers, since, SlackElementFormatter())
+def format_similar_papers(
+    reference_paper: dict | None,
+    similar_papers: list[dict],
+    reference_paper_title: str,
+    fmt: ElementFormatter,
+) -> str:
+    if reference_paper is None:
+        paperbot = fmt.link("PaperBot", "https://github.com/RasmusML/paper-bot")
+        reference_paper_bold = fmt.bold(reference_paper_title)
+        output = f"🔍 {paperbot} failed to find {reference_paper_bold}."
+        return output
+
+    preprints = [paper for paper in similar_papers if not paper["is_paper"]]
+    papers = [paper for paper in similar_papers if paper["is_paper"]]
+
+    # header
+    n_preprints = fmt.bold(f"{len(preprints)}")
+    n_papers = fmt.bold(f"{len(papers)}")
+
+    paperbot = fmt.link("PaperBot", "https://github.com/RasmusML/paper-bot")
+    reference_paper_bold = fmt.bold(reference_paper_title)
+    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers similar to {reference_paper_bold}.\n\n"
+
+    # rest
+    output += _newline(_format_preprint_section(preprints, fmt))
+    output += _format_paper_section(papers, fmt)
+
+    return output
 
 
-def format_query_papers_for_discord(papers: list[dict], since: datetime.date) -> str:
-    """Generate an overview of the fetched papers in Discord format."""
-    return _format_query_papers(papers, since, DiscordElementFormatter())
-
-
-def _format_query_papers(
+def format_query_papers(
     papers: list[dict],
     since: datetime.date,
     fmt: ElementFormatter,
@@ -74,7 +104,7 @@ def _format_query_papers(
     papers = [paper for paper in papers if paper["is_paper"]]
 
     output = ""
-    output += _newline(_format_summary_section(preprints, papers, since, fmt))
+    output += _newline(_format_query_header_section(preprints, papers, since, fmt))
     output += _newline(_format_preprint_section(preprints, fmt))
     output += _format_paper_section(papers, fmt)
     return output
@@ -84,7 +114,7 @@ def _newline(text: str) -> str:
     return "" if text == "" else f"{text}\n"
 
 
-def _format_summary_section(
+def _format_query_header_section(
     preprints: list[dict], papers: list[dict], since: datetime.date, fmt: ElementFormatter
 ) -> str:
     n_preprints = fmt.bold(f"{len(preprints)}")

@@ -18,10 +18,16 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-HELP_INFO = """
-**PaperBot Usage**
-- Use `!paperbot <query> <date_since>` to fetch papers.
-- Example: `!paperbot "('machine learning' | 'ML') + 'AMP'" 2022-01-01`
+PAPERFIND_HELP_INFO = """
+**Usage**
+- Use `!paperfind <query> <date_since>` to fetch papers.
+- Example: `!paperfind "('machine learning' | 'ML') + 'AMP'" 2022-01-01`
+"""
+
+PAPERLIKE_HELP_INFO = """
+**Usage**
+- Use `!paperlike <reference_paper_title>` to fetch similar papers.
+- Example: `!paperlike "Attention is All You Need"`
 """
 
 TEMPLATE_QUERIES_DIR = "queries/"
@@ -63,11 +69,11 @@ async def send(ctx, text):
         await ctx.send(text)
 
 
-@bot.command() # type: ignore
-async def paperbot(ctx, query: str = None, date_since: str = None):
+@bot.command()  # type: ignore
+async def paperfind(ctx, query: str = None, date_since: str = None):
     """Fetch papers and send them to the channel."""
     if (query is None) or (date_since is None):
-        return await send(ctx, HELP_INFO)
+        return await send(ctx, PAPERFIND_HELP_INFO)
 
     query = query.replace('"', "'")
 
@@ -86,6 +92,18 @@ async def paperbot(ctx, query: str = None, date_since: str = None):
         return await send(ctx, "Invalid query. Please check the syntax.")
 
     text = pb.format_query_papers(papers, since, "discord")
+
+    await send(ctx, text)
+
+
+@bot.command()  # type: ignore
+async def paperlike(ctx, title: str = None):
+    """Fetch similar papers and send them to the channel."""
+    if title is None:
+        return await send(ctx, PAPERLIKE_HELP_INFO)
+
+    reference_paper, similar_papers = pb.fetch_similar_papers(title)
+    text = pb.format_similar_papers(reference_paper, similar_papers, title, "discord")
 
     await send(ctx, text)
 

@@ -20,6 +20,7 @@ def fetch_similar_papers(paper_title: str, max_papers=5) -> tuple[dict[str, Any]
     )
 
     similar_papers = [_extract_paper_data(paper) for paper in raw_similar_papers["recommendedPapers"]]
+    similar_papers = _remove_duplicate_papers(similar_papers)
 
     return reference_paper, similar_papers
 
@@ -28,6 +29,7 @@ def fetch_papers_from_query(
     query: str,
     since: datetime.date = None,
     until: datetime.date = None,
+    max_papers: int = None,
 ) -> list[dict[str, Any]]:
     """Fetch papers."""
     fields = "title,url,externalIds,publicationTypes,publicationDate,year"
@@ -35,15 +37,33 @@ def fetch_papers_from_query(
     raw_papers = ss.fetch_papers_from_query(query, fields, publication_period)
 
     papers = [_extract_paper_data(paper) for paper in raw_papers["data"]]
+    papers = _remove_duplicate_papers(papers)
     papers = _sort_papers_by_date(papers)
+    papers = _filter_max_papers(papers, max_papers) if max_papers else papers
 
     return papers
+
+
+def _filter_max_papers(papers: list[dict[str, Any]], limit: int) -> list[dict[str, Any]]:
+    return papers[-limit:]
+
+
+def _remove_duplicate_papers(papers: list[dict[str, Any]], key: str = "id") -> list[dict[str, Any]]:
+    unique_papers = []
+    unique_ids = set()
+
+    for paper in papers:
+        if paper[key] not in unique_ids:
+            unique_papers.append(paper)
+            unique_ids.add(paper[key])
+
+    return unique_papers
 
 
 def _extract_paper_data(paper: dict[str, Any]) -> dict[str, Any]:
     id = paper.get("paperId")
     title = paper.get("title")
-    semanticscholar_url = paper.get("url")
+    semantic_scholar_url = paper.get("url")
     publication_types = paper.get("publicationTypes")
     publication_date = paper.get("publicationDate")
     year = paper.get("year")
@@ -55,7 +75,7 @@ def _extract_paper_data(paper: dict[str, Any]) -> dict[str, Any]:
     if (not publication_date) and year:
         publication_date = f"{year}-01-01"
 
-    url = _get_url_from_doi(doi) if doi else semanticscholar_url
+    url = _get_url_from_doi(doi) if doi else semantic_scholar_url
     is_paper = "JournalArticle" in publication_types if publication_types else False
 
     full_result = {

@@ -11,13 +11,14 @@ logging.basicConfig(level=logging.INFO)
 TEMPLATE_QUERIES_DIR = "queries/"
 
 
-def fetch_papers(query: str, since: datetime.date, until: datetime.date):
+def fetch_papers(query: str, since: datetime.date, until: datetime.date, max_papers: int):
     """Fetch papers."""
     logging.info("Fetching papers...")
     papers = paperbot.fetch_papers_from_query(
         query=query,
         since=since,
         until=until,
+        max_papers=max_papers,
     )
     logging.info("Done fetching papers.")
 
@@ -35,6 +36,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--since", type=str, help="Start date", default="2022-01-01")
     parser.add_argument("--until", type=str, help="End date")
+    parser.add_argument("--max_papers", type=int, help="Max number of papers to fetch")
 
     args = parser.parse_args()
 
@@ -47,5 +49,6 @@ if __name__ == "__main__":
 
     since = datetime.date.fromisoformat(args.since) if args.since else None
     until = datetime.date.fromisoformat(args.until) if args.until else None
+    max_papers = args.max_papers
 
-    fetch_papers(query, since, until)
+    fetch_papers(query, since, until, max_papers)
