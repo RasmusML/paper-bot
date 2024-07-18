@@ -47,7 +47,7 @@ def break_text(text: str, max_length: int) -> list[str]:
     return [text[i : i + max_length] for i in range(0, len(text), max_length)]
 
 
-def break_text_with_new_lines(text: str, max_length: int) -> list[str]:
+def break_text_with_newlines(text: str, max_length: int) -> list[str]:
     texts = []
 
     lines = text.split("\n")
@@ -62,14 +62,18 @@ def break_text_with_new_lines(text: str, max_length: int) -> list[str]:
             text_builder = ""
         text_builder += "\n" + line
 
-    texts += break_text(text_builder, max_length) if len(text_builder) > max_length else [text_builder]
+    texts += break_text(text_builder, max_length)
 
     return texts
 
 
 async def send(ctx, text):
-    text_segments = break_text_with_new_lines(text, max_length=2_000)
-    for text in text_segments:
+    texts = break_text_with_newlines(text, max_length=2_000)
+
+    # discord can not send whitespace messages
+    texts = list(filter(lambda x: x.strip() != "", texts))
+
+    for text in texts:
         await ctx.send(text)
 
 
