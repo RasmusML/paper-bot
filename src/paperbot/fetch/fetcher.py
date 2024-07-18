@@ -16,7 +16,10 @@ def fetch_similar_papers(title: str, limit=5) -> tuple[dict[str, Any], list[dict
 
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year"
     raw_similar_papers = ss.fetch_similar_papers_from_id(
-        reference_paper["id"], from_pool="all-cs", limit=limit, fields=fields
+        reference_paper["id"],
+        from_pool="all-cs",
+        limit=limit,
+        fields=fields,
     )
 
     similar_papers = [_extract_paper_data(paper) for paper in raw_similar_papers["recommendedPapers"]]

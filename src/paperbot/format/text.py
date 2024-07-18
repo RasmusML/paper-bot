@@ -4,7 +4,7 @@ import datetime
 
 
 class ElementFormatter:
-    def link(self, text: str, url: str) -> str:
+    def link(self, url: str, text: str) -> str:
         """Linkify a text with a URL."""
         raise NotImplementedError
 
@@ -18,8 +18,8 @@ class ElementFormatter:
 
 
 class SlackElementFormatter(ElementFormatter):
-    def link(self, text: str, url: str) -> str:
-        return f"<{url}|{text}>" if url is not None else text
+    def link(self, url: str, text: str) -> str:
+        return f"<{url}|{text}>" if text is not None else url
 
     def item(self, text: str) -> str:
         return f"- {text}"
@@ -29,8 +29,8 @@ class SlackElementFormatter(ElementFormatter):
 
 
 class DiscordElementFormatter(ElementFormatter):
-    def link(self, text: str, url: str) -> str:
-        return f"[{text}]({url})" if url is not None else text
+    def link(self, url: str, text: str) -> str:
+        return f"[{text}]({url})" if text is not None else url
 
     def item(self, text: str) -> str:
         return f"- {text}"
@@ -40,8 +40,8 @@ class DiscordElementFormatter(ElementFormatter):
 
 
 class PlainElementFormatter(ElementFormatter):
-    def link(self, text: str, url: str) -> str:
-        return f"{text} ({url})" if url is not None else text
+    def link(self, url: str, text: str) -> str:
+        return f"{text} ({url})" if text is not None else url
 
     def item(self, text: str) -> str:
         return f"- {text}"
@@ -72,7 +72,7 @@ def format_similar_papers(
     fmt: ElementFormatter,
 ) -> str:
     if reference_paper is None:
-        paperbot = fmt.link("PaperBot", "https://github.com/RasmusML/paper-bot")
+        paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
         reference_paper_bold = fmt.bold(reference_paper_title)
         output = f"🔍 {paperbot} failed to find {reference_paper_bold}."
         return output
@@ -84,7 +84,7 @@ def format_similar_papers(
     n_preprints = fmt.bold(f"{len(preprints)}")
     n_papers = fmt.bold(f"{len(papers)}")
 
-    paperbot = fmt.link("PaperBot", "https://github.com/RasmusML/paper-bot")
+    paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
     reference_paper_bold = fmt.bold(reference_paper_title)
     output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers similar to {reference_paper_bold}.\n\n"
 
@@ -120,7 +120,7 @@ def _format_query_header_section(
     n_preprints = fmt.bold(f"{len(preprints)}")
     n_papers = fmt.bold(f"{len(papers)}")
 
-    paperbot = fmt.link("PaperBot", "https://github.com/RasmusML/paper-bot")
+    paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
     output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers"
 
     if since:
@@ -155,9 +155,9 @@ def _format_paper_section(papers: list[dict], fmt: ElementFormatter) -> str:
 
 
 def _format_paper_element(paper: dict, fmt: ElementFormatter) -> str:
-    title = paper["title"]
     url = paper["url"]
+    title = paper["title"]
 
-    link = fmt.link(title, url)
+    link = fmt.link(url, title)
     item = fmt.item(link)
     return item

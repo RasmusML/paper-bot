@@ -16,8 +16,8 @@ def fetch_papers(title: str, limit: int):
     reference_paper, similar_papers = paperbot.fetch_similar_papers(title, limit)
     logging.info("Done fetching papers.")
 
-    outpput = paperbot.format_similar_papers(reference_paper, similar_papers, title, format_type="plain")
-    logging.info(outpput)
+    text = paperbot.format_similar_papers(reference_paper, similar_papers, title, format_type="plain")
+    logging.info(text)
 
     n_papers = len(similar_papers)
     logging.info(f"Number of papers: {n_papers}")

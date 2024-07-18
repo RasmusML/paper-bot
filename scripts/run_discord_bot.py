@@ -47,7 +47,7 @@ def break_text(text: str, max_length: int) -> list[str]:
     return [text[i : i + max_length] for i in range(0, len(text), max_length)]
 
 
-def decompose_text(text: str, max_length: int) -> list[str]:
+def break_text_with_new_lines(text: str, max_length: int) -> list[str]:
     texts = []
 
     lines = text.split("\n")
@@ -62,14 +62,14 @@ def decompose_text(text: str, max_length: int) -> list[str]:
             text_builder = ""
         text_builder += "\n" + line
 
-    texts += [text_builder]
+    texts += break_text(text_builder, max_length) if len(text_builder) > max_length else [text_builder]
 
     return texts
 
 
 async def send(ctx, text):
-    decomposed_text = decompose_text(text, max_length=2_000)
-    for text in decomposed_text:
+    text_segments = break_text_with_new_lines(text, max_length=2_000)
+    for text in text_segments:
         await ctx.send(text)
 
 
