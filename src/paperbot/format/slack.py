@@ -13,7 +13,7 @@ class SlackRichTextFormatter:
 
     def format_similar_papers(
         self,
-        paper: dict[str, Any],
+        paper: dict[str, Any] | None,
         similar_papers: list[dict[str, Any]],
         paper_title: str,
     ) -> list[Any]:

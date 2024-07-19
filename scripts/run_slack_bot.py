@@ -88,7 +88,7 @@ def paperfind(ack, body):
     blocks_message = prepare_blocks_for_message(blocks)
 
     text = pb.format_query_papers(papers, since, format_type="slack")
-    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message)
+    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message, unfurl_links=True)
 
 
 @app.command("/paperlike")
@@ -106,10 +106,10 @@ def paperlike(ack, body):
 
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
     blocks = pb.format_similar_papers(paper, similar_papers, title, format_type="slack-rich")
-    blocks_messasge = prepare_blocks_for_message(blocks)
+    blocks_message = prepare_blocks_for_message(blocks)
 
     text = pb.format_similar_papers(paper, similar_papers, title, format_type="slack")
-    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_messasge)
+    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message)
 
 
 if __name__ == "__main__":

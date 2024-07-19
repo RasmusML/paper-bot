@@ -6,7 +6,7 @@ from typing import Any
 
 class ElementFormatter:
     def link(self, url: str, text: str = None) -> str:
-        """Linkify a text with a URL."""
+        """Linkify an url with optional alias text."""
         raise NotImplementedError
 
     def item(self, text: str) -> str:
@@ -55,12 +55,19 @@ class TextFormatter:
     def __init__(self, element_formatter: ElementFormatter):
         self.element_formatter = element_formatter
 
-    def format_query_papers(self, all_papers: list[dict[str, Any]], since: datetime.date) -> str:
+    def format_query_papers(
+        self,
+        all_papers: list[dict[str, Any]],
+        since: datetime.date,
+    ) -> str:
         """Format query papers."""
         return format_query_papers(all_papers, since, self.element_formatter)
 
     def format_similar_papers(
-        self, paper: dict[str, Any], similar_papers: list[dict[str, Any]], paper_title: str
+        self,
+        paper: dict[str, Any] | None,
+        similar_papers: list[dict[str, Any]],
+        paper_title: str,
     ) -> str:
         """Format similar papers."""
         return format_similar_papers(paper, similar_papers, paper_title, self.element_formatter)
@@ -90,7 +97,7 @@ def format_similar_papers(
     output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers similar to {paper_bold}.\n\n"
 
     # rest
-    output += _newline(_format_preprint_section(preprints, fmt))
+    output += _divider(_format_preprint_section(preprints, fmt))
     output += _format_paper_section(papers, fmt)
 
     return output
@@ -105,13 +112,13 @@ def format_query_papers(
     papers = [paper for paper in papers if paper["is_paper"]]
 
     output = ""
-    output += _newline(_format_query_header_section(preprints, papers, since, fmt))
-    output += _newline(_format_preprint_section(preprints, fmt))
+    output += _divider(_format_query_header_section(preprints, papers, since, fmt))
+    output += _divider(_format_preprint_section(preprints, fmt))
     output += _format_paper_section(papers, fmt)
     return output
 
 
-def _newline(text: str) -> str:
+def _divider(text: str) -> str:
     return "" if text == "" else f"{text}\n"
 
 
