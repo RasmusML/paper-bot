@@ -32,7 +32,9 @@ def fetch_papers(query: str, since: datetime.date, until: datetime.date, limit: 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "query_file", type=str, help="Filename of a query in the directory 'queries/' (without file extension)"
+        "query_file",
+        type=str,
+        help="Filename of a query in the directory 'queries/' (without file extension)",
     )
     parser.add_argument("--since", type=str, help="Start date", default="2022-01-01")
     parser.add_argument("--until", type=str, help="End date")

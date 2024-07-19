@@ -1,6 +1,7 @@
 """Text-based formatter."""
 
 import datetime
+from typing import Any
 
 
 class ElementFormatter:
@@ -30,7 +31,7 @@ class SlackElementFormatter(ElementFormatter):
 
 class DiscordElementFormatter(ElementFormatter):
     def link(self, url: str, text: str) -> str:
-        return f"[{text}](<{url}>)" if text is not None else url
+        return f"[{text}](<{url}>)" if text is not None else f"<{url}>"
 
     def item(self, text: str) -> str:
         return f"- {text}"
@@ -54,26 +55,26 @@ class TextFormatter:
     def __init__(self, element_formatter: ElementFormatter):
         self.element_formatter = element_formatter
 
-    def format_query_papers(self, all_papers: list[dict], since: datetime.date) -> str:
+    def format_query_papers(self, all_papers: list[dict[str, Any]], since: datetime.date) -> str:
         """Format query papers."""
         return format_query_papers(all_papers, since, self.element_formatter)
 
     def format_similar_papers(
-        self, reference_paper: dict, similar_papers: list[dict], reference_paper_title: str
+        self, paper: dict[str, Any], similar_papers: list[dict[str, Any]], paper_title: str
     ) -> str:
         """Format similar papers."""
-        return format_similar_papers(reference_paper, similar_papers, reference_paper_title, self.element_formatter)
+        return format_similar_papers(paper, similar_papers, paper_title, self.element_formatter)
 
 
 def format_similar_papers(
-    reference_paper: dict | None,
-    similar_papers: list[dict],
-    reference_paper_title: str,
+    paper: dict[str, Any] | None,
+    similar_papers: list[dict[str, Any]],
+    paper_title: str,
     fmt: ElementFormatter,
 ) -> str:
-    if reference_paper is None:
+    if paper is None:
         paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-        reference_paper_bold = fmt.bold(reference_paper_title)
+        reference_paper_bold = fmt.bold(paper_title)
         output = f"🔍 {paperbot} failed to find {reference_paper_bold}."
         return output
 
@@ -85,7 +86,7 @@ def format_similar_papers(
     n_papers = fmt.bold(f"{len(papers)}")
 
     paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-    reference_paper_bold = fmt.bold(reference_paper_title)
+    reference_paper_bold = fmt.bold(paper_title)
     output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers similar to {reference_paper_bold}.\n\n"
 
     # rest
@@ -96,7 +97,7 @@ def format_similar_papers(
 
 
 def format_query_papers(
-    papers: list[dict],
+    papers: list[dict[str, Any]],
     since: datetime.date,
     fmt: ElementFormatter,
 ) -> str:
@@ -115,7 +116,10 @@ def _newline(text: str) -> str:
 
 
 def _format_query_header_section(
-    preprints: list[dict], papers: list[dict], since: datetime.date, fmt: ElementFormatter
+    preprints: list[dict[str, Any]],
+    papers: list[dict[str, Any]],
+    since: datetime.date,
+    fmt: ElementFormatter,
 ) -> str:
     n_preprints = fmt.bold(f"{len(preprints)}")
     n_papers = fmt.bold(f"{len(papers)}")
@@ -132,7 +136,7 @@ def _format_query_header_section(
     return output
 
 
-def _format_preprint_section(preprints: list[dict], fmt: ElementFormatter) -> str:
+def _format_preprint_section(preprints: list[dict[str, Any]], fmt: ElementFormatter) -> str:
     if not preprints:
         return ""
 
@@ -143,7 +147,7 @@ def _format_preprint_section(preprints: list[dict], fmt: ElementFormatter) -> st
     return f"📝 {header}:\n{preprint_list}\n"
 
 
-def _format_paper_section(papers: list[dict], fmt: ElementFormatter) -> str:
+def _format_paper_section(papers: list[dict[str, Any]], fmt: ElementFormatter) -> str:
     if not papers:
         return ""
 
@@ -154,7 +158,7 @@ def _format_paper_section(papers: list[dict], fmt: ElementFormatter) -> str:
     return f"🗞️ {header}:\n{paper_list}\n"
 
 
-def _format_paper_element(paper: dict, fmt: ElementFormatter) -> str:
+def _format_paper_element(paper: dict[str, Any], fmt: ElementFormatter) -> str:
     url = paper["url"]
     title = paper["title"]
 

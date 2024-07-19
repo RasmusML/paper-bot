@@ -46,7 +46,7 @@ def parse_arguments(text: str) -> list[str]:
     return text.split(",")
 
 
-def prepare_blocks_for_message(blocks: list[dict], max_characters_in_block_message=20_000) -> str:
+def prepare_blocks_for_message(blocks: list[dict], max_characters_in_block_message=20_000) -> str | None:
     blocks_str = json.dumps(blocks)
     block_message = None if len(blocks_str) > max_characters_in_block_message else blocks_str
     return block_message

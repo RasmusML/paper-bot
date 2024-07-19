@@ -1,11 +1,14 @@
 import datetime
 import logging
+import typing
 from typing import Any, Literal
 
 from paperbot.format.slack import SlackRichTextFormatter
 from paperbot.format.text import DiscordElementFormatter, PlainElementFormatter, SlackElementFormatter, TextFormatter
 
 logger = logging.getLogger(__name__)
+
+FormatType = Literal["plain", "slack", "discord", "slack-rich"]
 
 FORMATTERS = {
     "plain": TextFormatter(PlainElementFormatter()),
@@ -14,11 +17,13 @@ FORMATTERS = {
     "slack-rich": SlackRichTextFormatter(),
 }
 
+assert set(FORMATTERS.keys()) == set(typing.get_args(FormatType))
+
 
 def format_query_papers(
     papers: list[dict[str, Any]],
     since: datetime.date,
-    format_type: Literal["plain", "slack", "discord", "slack-rich"] = "plain",
+    format_type: FormatType = "plain",
 ) -> str | list[Any]:
     """Format the fetched papers."""
     fmt = _get_formatter(format_type)
@@ -29,14 +34,14 @@ def format_similar_papers(
     reference_paper: dict[str, Any] | None,
     similar_papers: list[dict[str, Any]],
     reference_paper_title: str,
-    format_type: Literal["plain", "slack", "discord", "slack-rich"] = "plain",
+    format_type: FormatType = "plain",
 ) -> str | list[Any]:
     """Format similar papers."""
     fmt = _get_formatter(format_type)
     return fmt.format_similar_papers(reference_paper, similar_papers, reference_paper_title)
 
 
-def _get_formatter(format_type: Literal["plain", "slack", "discord", "slack-rich"]) -> Any:
+def _get_formatter(format_type: FormatType) -> Any:
     try:
         return FORMATTERS[format_type]
     except KeyError as err:

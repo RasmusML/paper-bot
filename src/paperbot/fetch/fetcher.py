@@ -75,8 +75,8 @@ def _extract_paper_data(paper: dict[str, Any]) -> dict[str, Any]:
     year = paper.get("year")
 
     doi = None
-    if ("externalIds" in paper) and ("DOI" in paper["externalIds"]):
-        doi = paper["externalIds"]["DOI"]
+    if "externalIds" in paper:
+        doi = paper["externalIds"].get("DOI")
 
     if (not publication_date) and year:
         publication_date = f"{year}-01-01"

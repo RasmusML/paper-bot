@@ -67,7 +67,7 @@ def break_text_with_newlines(text: str, max_length: int) -> list[str]:
     return texts
 
 
-async def send(ctx, text):
+async def send(ctx, text: str):
     texts = break_text_with_newlines(text, max_length=2_000)
 
     # discord can not send whitespace messages
@@ -102,6 +102,7 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
         return await send(ctx, "Something went very wrong...")
 
     text = pb.format_query_papers(papers, since, "discord")
+    assert isinstance(text, str)
 
     await send(ctx, text)
 
@@ -113,7 +114,9 @@ async def paperlike(ctx, title: str = None):
         return await send(ctx, PAPERLIKE_HELP_INFO)
 
     reference_paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
+
     text = pb.format_similar_papers(reference_paper, similar_papers, title, "discord")
+    assert isinstance(text, str)
 
     await send(ctx, text)
 
