@@ -30,7 +30,7 @@ class SlackElementFormatter(ElementFormatter):
 
 class DiscordElementFormatter(ElementFormatter):
     def link(self, url: str, text: str) -> str:
-        return f"[{text}]({url})" if text is not None else url
+        return f"[{text}](<{url}>)" if text is not None else url
 
     def item(self, text: str) -> str:
         return f"- {text}"
