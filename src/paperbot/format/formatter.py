@@ -31,14 +31,14 @@ def format_query_papers(
 
 
 def format_similar_papers(
-    reference_paper: dict[str, Any] | None,
+    paper: dict[str, Any] | None,
     similar_papers: list[dict[str, Any]],
-    reference_paper_title: str,
+    paper_title: str,
     format_type: FormatType = "plain",
 ) -> str | list[Any]:
     """Format similar papers."""
     fmt = _get_formatter(format_type)
-    return fmt.format_similar_papers(reference_paper, similar_papers, reference_paper_title)
+    return fmt.format_similar_papers(paper, similar_papers, paper_title)
 
 
 def _get_formatter(format_type: FormatType) -> Any:

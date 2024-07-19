@@ -12,11 +12,11 @@ def fetch_similar_papers(title: str, limit=5) -> tuple[dict[str, Any], list[dict
     if ("error" in raw_paper) and (raw_paper["error"] == "Title match not found"):
         return None, None
 
-    reference_paper = _extract_paper_data(raw_paper["data"][0])
+    paper = _extract_paper_data(raw_paper["data"][0])
 
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year"
     raw_similar_papers = ss.fetch_similar_papers_from_id(
-        reference_paper["id"],
+        paper["id"],
         from_pool="all-cs",
         limit=limit,
         fields=fields,
@@ -25,7 +25,7 @@ def fetch_similar_papers(title: str, limit=5) -> tuple[dict[str, Any], list[dict
     similar_papers = [_extract_paper_data(paper) for paper in raw_similar_papers["recommendedPapers"]]
     similar_papers = _remove_duplicate_papers(similar_papers)
 
-    return reference_paper, similar_papers
+    return paper, similar_papers
 
 
 def fetch_papers_from_query(

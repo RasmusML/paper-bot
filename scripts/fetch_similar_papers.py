@@ -13,10 +13,10 @@ TEMPLATE_QUERIES_DIR = "queries/"
 def fetch_papers(title: str, limit: int):
     """Fetch papers."""
     logging.info("Fetching papers...")
-    reference_paper, similar_papers = paperbot.fetch_similar_papers(title, limit)
+    paper, similar_papers = paperbot.fetch_similar_papers(title, limit)
     logging.info("Done fetching papers.")
 
-    text = paperbot.format_similar_papers(reference_paper, similar_papers, title, format_type="plain")
+    text = paperbot.format_similar_papers(paper, similar_papers, title, format_type="plain")
     logging.info(text)
 
     n_papers = len(similar_papers)
@@ -25,7 +25,7 @@ def fetch_papers(title: str, limit: int):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("title", type=str, help="Title of reference paper")
+    parser.add_argument("title", type=str, help="Title of paper")
     parser.add_argument("--limit", type=str, help="Max number of papers to fetch", default=15)
 
     args = parser.parse_args()

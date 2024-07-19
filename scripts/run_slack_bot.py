@@ -26,7 +26,7 @@ PAPERFIND_HELP_INFO = """
 
 PAPERLIKE_HELP_INFO = """
 *Usage*
-- Use `/paperlike <reference_paper_title>` to fetch similar papers.
+- Use `/paperlike <paper_title>` to fetch similar papers.
 - Example: `/paperlike "Attention is All You Need"`
 """
 
@@ -104,11 +104,11 @@ def paperlike(ack, body):
 
     title = args[0].replace('"', "")
 
-    reference_paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
-    blocks = pb.format_similar_papers(reference_paper, similar_papers, title, format_type="slack-rich")
+    paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
+    blocks = pb.format_similar_papers(paper, similar_papers, title, format_type="slack-rich")
     blocks_messasge = prepare_blocks_for_message(blocks)
 
-    text = pb.format_similar_papers(reference_paper, similar_papers, title, format_type="slack")
+    text = pb.format_similar_papers(paper, similar_papers, title, format_type="slack")
     app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_messasge)
 
 

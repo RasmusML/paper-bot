@@ -5,7 +5,7 @@ from typing import Any
 
 
 class ElementFormatter:
-    def link(self, url: str, text: str) -> str:
+    def link(self, url: str, text: str = None) -> str:
         """Linkify a text with a URL."""
         raise NotImplementedError
 
@@ -19,7 +19,7 @@ class ElementFormatter:
 
 
 class SlackElementFormatter(ElementFormatter):
-    def link(self, url: str, text: str) -> str:
+    def link(self, url: str, text: str = None) -> str:
         return f"<{url}|{text}>" if text is not None else url
 
     def item(self, text: str) -> str:
@@ -30,7 +30,7 @@ class SlackElementFormatter(ElementFormatter):
 
 
 class DiscordElementFormatter(ElementFormatter):
-    def link(self, url: str, text: str) -> str:
+    def link(self, url: str, text: str = None) -> str:
         return f"[{text}](<{url}>)" if text is not None else f"<{url}>"
 
     def item(self, text: str) -> str:
@@ -41,7 +41,7 @@ class DiscordElementFormatter(ElementFormatter):
 
 
 class PlainElementFormatter(ElementFormatter):
-    def link(self, url: str, text: str) -> str:
+    def link(self, url: str, text: str = None) -> str:
         return f"{text} ({url})" if text is not None else url
 
     def item(self, text: str) -> str:
@@ -74,8 +74,8 @@ def format_similar_papers(
 ) -> str:
     if paper is None:
         paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-        reference_paper_bold = fmt.bold(paper_title)
-        output = f"🔍 {paperbot} failed to find {reference_paper_bold}."
+        paper_bold = fmt.bold(paper_title)
+        output = f"🔍 {paperbot} failed to find {paper_bold}."
         return output
 
     preprints = [paper for paper in similar_papers if not paper["is_paper"]]
@@ -86,8 +86,8 @@ def format_similar_papers(
     n_papers = fmt.bold(f"{len(papers)}")
 
     paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-    reference_paper_bold = fmt.bold(paper_title)
-    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers similar to {reference_paper_bold}.\n\n"
+    paper_bold = fmt.bold(paper_title)
+    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers similar to {paper_bold}.\n\n"
 
     # rest
     output += _newline(_format_preprint_section(preprints, fmt))

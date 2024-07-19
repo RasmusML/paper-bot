@@ -9,7 +9,7 @@ def fetch_similar_papers_from_id(
     limit: int = None,
     fields: str = None,
 ) -> dict[str, Any]:
-    """Fetch similar papers based on reference paper id.
+    """Fetch papers similar to the paper with id `paper id`.
 
     References
     ----------

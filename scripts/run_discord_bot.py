@@ -26,7 +26,7 @@ PAPERFIND_HELP_INFO = """
 
 PAPERLIKE_HELP_INFO = """
 **Usage**
-- Use `!paperlike <reference_paper_title>` to fetch similar papers.
+- Use `!paperlike <paper_title>` to fetch similar papers.
 - Example: `!paperlike "Attention is All You Need"`
 """
 
@@ -113,9 +113,9 @@ async def paperlike(ctx, title: str = None):
     if title is None:
         return await send(ctx, PAPERLIKE_HELP_INFO)
 
-    reference_paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
+    paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
 
-    text = pb.format_similar_papers(reference_paper, similar_papers, title, "discord")
+    text = pb.format_similar_papers(paper, similar_papers, title, "discord")
     assert isinstance(text, str)
 
     await send(ctx, text)
