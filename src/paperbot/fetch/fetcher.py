@@ -54,7 +54,7 @@ def _filter_by_paper_limit(papers: list[dict[str, Any]], limit: int) -> list[dic
     return papers[-limit:]
 
 
-def _remove_duplicate_papers(papers: list[dict[str, Any]], key: str = "id") -> list[dict[str, Any]]:
+def _remove_duplicate_papers(papers: list[dict[str, Any]], key: str = "title") -> list[dict[str, Any]]:
     unique_papers = []
     unique_ids = set()
 

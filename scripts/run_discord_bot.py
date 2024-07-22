@@ -17,6 +17,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+pb.init_bot_logger(logger, "logs/discord.log")
 
 PAPERFIND_HELP_INFO = """
 **Usage**
@@ -80,6 +81,9 @@ async def send(ctx, text: str):
 @bot.command()  # type: ignore
 async def paperfind(ctx, query: str = None, date_since: str = None):
     """Fetch papers and send them to the channel."""
+    message_id = pb.create_uuid()
+    logger.info(f"{message_id} - !paperfind {query} {date_since}")
+
     if (query is None) or (date_since is None):
         return await send(ctx, PAPERFIND_HELP_INFO)
 
@@ -92,14 +96,18 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
     try:
         since = datetime.date.fromisoformat(date_since)
     except ValueError:
-        return await send(ctx, "Invalid date format. Please use YYYY-MM-DD.")
+        await send(ctx, "Invalid date format. Please use YYYY-MM-DD.")
+        return
 
     try:
         papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
     except ValueError:
-        return await send(ctx, "Invalid query. Please check the syntax.")
+        await send(ctx, "Invalid query. Please check the syntax.")
+        return
     except RuntimeError:
-        return await send(ctx, "Something went very wrong...")
+        await send(ctx, "Something went very wrong...")
+        logger.error(f"{message_id} - Something went very wrong...")
+        return
 
     text = pb.format_query_papers(papers, since, "discord")
     assert isinstance(text, str)
@@ -110,8 +118,12 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
 @bot.command()  # type: ignore
 async def paperlike(ctx, title: str = None):
     """Fetch similar papers and send them to the channel."""
+    message_id = pb.create_uuid()
+    logger.info(f"{message_id} - !paperlike {title}")
+
     if title is None:
-        return await send(ctx, PAPERLIKE_HELP_INFO)
+        await send(ctx, PAPERLIKE_HELP_INFO)
+        return
 
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
 

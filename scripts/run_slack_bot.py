@@ -17,6 +17,7 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
 logger = logging.getLogger(__name__)
+pb.init_bot_logger(logger, "logs/slack.log")
 
 PAPERFIND_HELP_INFO = """
 *Usage*
@@ -56,8 +57,14 @@ def prepare_blocks_for_message(blocks: list[dict], max_characters_in_block_messa
 def paperfind(ack, body):
     ack()
 
+    message_id = pb.create_uuid()
+
     channel_id = body["channel_id"]
-    args = parse_arguments(body["text"])
+    text = body["text"]
+
+    logger.info(f"{message_id} - /paperfind {text}")
+
+    args = parse_arguments(text)
 
     if len(args) != 2:
         app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
@@ -82,6 +89,7 @@ def paperfind(ack, body):
         return
     except RuntimeError:
         app.client.chat_postMessage(channel=channel_id, text="Something went very wrong...")
+        logger.error(f"{message_id} - Something went very wrong...")
         return
 
     blocks = pb.format_query_papers(papers, since, format_type="slack-rich")
@@ -95,8 +103,14 @@ def paperfind(ack, body):
 def paperlike(ack, body):
     ack()
 
+    message_id = pb.create_uuid()
+
     channel_id = body["channel_id"]
-    args = parse_arguments(body["text"])
+    text = body["text"]
+
+    logger.info(f"{message_id} - /paperlike {text}")
+
+    args = parse_arguments(text)
 
     if len(args) != 1:
         app.client.chat_postMessage(channel=channel_id, text=PAPERLIKE_HELP_INFO)
