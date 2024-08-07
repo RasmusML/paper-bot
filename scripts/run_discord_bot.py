@@ -22,19 +22,19 @@ pb.init_bot_logger(logger, "logs/discord.log")
 PAPERFIND_HELP_INFO = """
 **Usage**
 - Use `!paperfind <query> <date_since>` to fetch papers.
-- Example: `!paperfind "('machine learning' | 'ML') + 'AMP'" 2022-01-01`
+- Example: `!paperfind '("machine learning" | "ML") + "AMP"' 2022-01-01`
 """
 
 PAPERLIKE_HELP_INFO = """
 **Usage**
 - Use `!paperlike <paper_title>` to fetch similar papers.
-- Example: `!paperlike "Attention is All You Need"`
+- Example: `!paperlike 'Attention is All You Need'`
 """
 
 PAPERCITE_HELP_INFO = """
 **Usage**
 - Use `!papercite <paper_title>` to fetch papers cited.
-- Example: `!papercite "Attention is All You Need"`
+- Example: `!papercite 'Attention is All You Need'`
 """
 
 TEMPLATE_QUERIES_DIR = "queries/"
@@ -49,6 +49,11 @@ load_dotenv()
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+def get_raw_arguments(ctx) -> str:
+    args = ctx.message.content.split(" ")[1:]
+    return " ".join(args)
 
 
 def break_text(text: str, max_length: int) -> list[str]:
@@ -85,17 +90,27 @@ async def send(ctx, text: str):
         await ctx.send(text)
 
 
-@bot.command()  # type: ignore
-async def paperfind(ctx, query: str = None, date_since: str = None):
+@bot.command()
+async def paperfind(ctx):
     """Fetch papers and send them to the channel."""
     message_id = pb.create_uuid()
-    logger.info(f"{message_id} - '!paperfind {query} {date_since}'")
 
-    if (query is None) or (date_since is None):
+    raw_arguments = get_raw_arguments(ctx)
+    logger.info(f"{message_id} - '!paperfind {raw_arguments}'")
+
+    try:
+        args, opt_args = pb.parse_arguments(raw_arguments)
+    except pb.ParseException as e:
         await send(ctx, PAPERFIND_HELP_INFO)
         return
 
-    query_or_filename = query.replace('"', "'")
+    if len(args) != 2:
+        await send(ctx, PAPERFIND_HELP_INFO)
+        return
+
+    query_or_filename = args[0]
+    date_since = args[1]
+    add_preamble = not opt_args.get("compact", False)
 
     template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
     query = template_queries.get(query_or_filename, query_or_filename)
@@ -117,43 +132,65 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
         logger.error(f"{message_id} - Something went very wrong...")
         return
 
-    text = pb.format_query_papers(papers, since, "discord")
+    text = pb.format_query_papers(papers, since, add_preamble, "discord")
     assert isinstance(text, str)
 
     await send(ctx, text)
 
 
-@bot.command()  # type: ignore
-async def paperlike(ctx, title: str = None):
+@bot.command()
+async def paperlike(ctx):
     """Fetch similar papers and send them to the channel."""
     message_id = pb.create_uuid()
-    logger.info(f"{message_id} - '!paperlike {title}'")
 
-    if title is None:
-        await send(ctx, PAPERLIKE_HELP_INFO)
+    raw_arguments = get_raw_arguments(ctx)
+    logger.info(f"{message_id} - '!paperlike {raw_arguments}'")
+
+    try:
+        args, opt_args = pb.parse_arguments(raw_arguments)
+    except pb.ParseException as e:
+        await send(ctx, PAPERFIND_HELP_INFO)
         return
+
+    if len(args) != 1:
+        await send(ctx, PAPERFIND_HELP_INFO)
+        return
+
+    title = args[0]
+    add_preamble = not opt_args.get("compact", False)
 
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
 
-    text = pb.format_similar_papers(paper, similar_papers, title, "discord")
+    text = pb.format_similar_papers(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 
     await send(ctx, text)
 
 
-@bot.command()  # type: ignore
-async def papercite(ctx, title: str = None):
+@bot.command()
+async def papercite(ctx):
     """Fetch similar papers and send them to the channel."""
     message_id = pb.create_uuid()
-    logger.info(f"{message_id} - '!papercite {title}'")
 
-    if title is None:
-        await send(ctx, PAPERCITE_HELP_INFO)
+    raw_arguments = get_raw_arguments(ctx)
+    logger.info(f"{message_id} - '!papercite {raw_arguments}'")
+
+    try:
+        args, opt_args = pb.parse_arguments(raw_arguments)
+    except pb.ParseException as e:
+        await send(ctx, PAPERFIND_HELP_INFO)
         return
+
+    if len(args) != 1:
+        await send(ctx, PAPERFIND_HELP_INFO)
+        return
+
+    title = args[0]
+    add_preamble = not opt_args.get("compact", False)
 
     paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
 
-    text = pb.format_papers_citing(paper, similar_papers, title, "discord")
+    text = pb.format_papers_citing(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 
     await send(ctx, text)

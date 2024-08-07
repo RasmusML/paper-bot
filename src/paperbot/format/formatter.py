@@ -23,33 +23,36 @@ assert set(FORMATTERS.keys()) == set(typing.get_args(FormatType))
 def format_query_papers(
     papers: list[dict[str, Any]],
     since: datetime.date,
+    add_preamble: bool = True,
     format_type: FormatType = "plain",
 ) -> str | list[Any]:
     """Format the fetched papers."""
     fmt = _get_formatter(format_type)
-    return fmt.format_query_papers(papers, since)
+    return fmt.format_query_papers(papers, since, add_preamble)
 
 
 def format_similar_papers(
     paper: dict[str, Any] | None,
     similar_papers: list[dict[str, Any]],
     paper_title: str,
+    add_preamble: bool = True,
     format_type: FormatType = "plain",
 ) -> str | list[Any]:
     """Format similar papers."""
     fmt = _get_formatter(format_type)
-    return fmt.format_similar_papers(paper, similar_papers, paper_title)
+    return fmt.format_similar_papers(paper, similar_papers, paper_title, add_preamble)
 
 
 def format_papers_citing(
     paper: dict[str, Any] | None,
     citing_papers: list[dict[str, Any]],
     paper_title: str,
+    add_preamble: bool = True,
     format_type: FormatType = "plain",
 ) -> str | list[Any]:
     """Format papers citing."""
     fmt = _get_formatter(format_type)
-    return fmt.format_papers_citing(paper, citing_papers, paper_title)
+    return fmt.format_papers_citing(paper, citing_papers, paper_title, add_preamble)
 
 
 def _get_formatter(format_type: FormatType) -> Any:
