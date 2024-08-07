@@ -1,12 +1,12 @@
-def parse_arguments(text: str) -> tuple[list[str], dict[str, str]]:
+def parse_arguments(text: str) -> tuple[list[str], dict[str, str | bool]]:
     """Parse arguments from a string. Used by the clients."""
     args = _tokenize_arguments(text)
     return _parse_tokens(args)
 
 
-def _parse_tokens(args):
-    args_positional = []
-    args_optional = {}
+def _parse_tokens(args: list[str]) -> tuple[list[str], dict[str, str | bool]]:
+    args_positional: list[str] = []
+    args_optional: dict[str, str | bool] = {}
 
     in_optional = False
 
@@ -20,6 +20,7 @@ def _parse_tokens(args):
 
                 if arg_name in args_optional:
                     raise PositionalArgumentRedefinitionException(arg_name)
+
                 args_optional[arg_name] = arg_value
             else:
                 if arg2 in args_optional:
@@ -33,7 +34,7 @@ def _parse_tokens(args):
 
             args_positional += [arg]
 
-    args_positional = [_remove_argument_container(arg) for arg in args_positional]
+    args_positional = [_remove_argument_container(arg) for arg in args_positional]  # type: ignore
     args_optional = {k: _remove_argument_container(v) for k, v in args_optional.items()}
 
     return args_positional, args_optional
@@ -76,6 +77,7 @@ def _remove_argument_container(text: str | bool) -> str | bool:
 
 class ParseException(Exception):
     pass
+
 
 class PositionalArgumentRedefinitionException(ParseException):
     def __init__(self, arg_name: str):

@@ -34,8 +34,8 @@ PAPERLIKE_HELP_INFO = """
 
 PAPERCITE_HELP_INFO = """
 *Usage*
-- Use `/papercite <paper_title>` to fetch papers cited.
-- Example: `/papercite 'Attention is All You Need'`
+- Use `/papercite <paper_title>` to fetch papers citing this paper.
+- Example: `/papercite 'Could a Neuroscientist Understand a Microprocessor?'`
 """
 
 
@@ -77,7 +77,7 @@ def paperfind(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except pb.ParseException as e:
+    except pb.ParseException:
         app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
 
     if len(args) != 2:
@@ -128,7 +128,7 @@ def paperlike(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except pb.ParseException as e:
+    except pb.ParseException:
         app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
 
     if len(args) != 1:
@@ -160,7 +160,7 @@ def papercite(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except pb.ParseException as e:
+    except pb.ParseException:
         app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
 
     if len(args) != 1:

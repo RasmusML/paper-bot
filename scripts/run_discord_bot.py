@@ -33,8 +33,8 @@ PAPERLIKE_HELP_INFO = """
 
 PAPERCITE_HELP_INFO = """
 **Usage**
-- Use `!papercite <paper_title>` to fetch papers cited.
-- Example: `!papercite 'Attention is All You Need'`
+- Use `!papercite <paper_title>` to fetch papers citing this paper.
+- Example: `!papercite 'Could a Neuroscientist Understand a Microprocessor?'`
 """
 
 TEMPLATE_QUERIES_DIR = "queries/"
@@ -47,7 +47,9 @@ CITING_PAPERS_LIMIT = 50
 
 load_dotenv()
 
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.message_content = True
+
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
@@ -100,7 +102,7 @@ async def paperfind(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except pb.ParseException as e:
+    except pb.ParseException:
         await send(ctx, PAPERFIND_HELP_INFO)
         return
 
@@ -148,7 +150,7 @@ async def paperlike(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except pb.ParseException as e:
+    except pb.ParseException:
         await send(ctx, PAPERFIND_HELP_INFO)
         return
 
@@ -177,7 +179,7 @@ async def papercite(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except pb.ParseException as e:
+    except pb.ParseException:
         await send(ctx, PAPERFIND_HELP_INFO)
         return
 
