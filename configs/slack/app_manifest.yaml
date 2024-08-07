@@ -15,6 +15,10 @@ features:
       description: Retrieve scientific papers similar to an existing paper
       usage_hint: title
       should_escape: false
+    - command: /papercite
+      description: Retrieve scientific papers citing this paper
+      usage_hint: title
+      should_escape: false
 oauth_config:
   scopes:
     bot:

@@ -31,12 +31,19 @@ PAPERLIKE_HELP_INFO = """
 - Example: `!paperlike "Attention is All You Need"`
 """
 
+PAPERCITE_HELP_INFO = """
+**Usage**
+- Use `!papercite <paper_title>` to fetch papers cited.
+- Example: `!papercite "Attention is All You Need"`
+"""
+
 TEMPLATE_QUERIES_DIR = "queries/"
 
 # Maximum number of papers to fetch
 QUERY_PAPER_LIMIT = 100
 TEMPLATE_QUERY_PAPER_LIMIT = 500
 SIMILAR_PAPERS_LIMIT = 50
+CITING_PAPERS_LIMIT = 50
 
 load_dotenv()
 
@@ -82,10 +89,11 @@ async def send(ctx, text: str):
 async def paperfind(ctx, query: str = None, date_since: str = None):
     """Fetch papers and send them to the channel."""
     message_id = pb.create_uuid()
-    logger.info(f"{message_id} - !paperfind {query} {date_since}")
+    logger.info(f"{message_id} - '!paperfind {query} {date_since}'")
 
     if (query is None) or (date_since is None):
-        return await send(ctx, PAPERFIND_HELP_INFO)
+        await send(ctx, PAPERFIND_HELP_INFO)
+        return
 
     query_or_filename = query.replace('"', "'")
 
@@ -119,7 +127,7 @@ async def paperfind(ctx, query: str = None, date_since: str = None):
 async def paperlike(ctx, title: str = None):
     """Fetch similar papers and send them to the channel."""
     message_id = pb.create_uuid()
-    logger.info(f"{message_id} - !paperlike {title}")
+    logger.info(f"{message_id} - '!paperlike {title}'")
 
     if title is None:
         await send(ctx, PAPERLIKE_HELP_INFO)
@@ -128,6 +136,24 @@ async def paperlike(ctx, title: str = None):
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
 
     text = pb.format_similar_papers(paper, similar_papers, title, "discord")
+    assert isinstance(text, str)
+
+    await send(ctx, text)
+
+
+@bot.command()  # type: ignore
+async def papercite(ctx, title: str = None):
+    """Fetch similar papers and send them to the channel."""
+    message_id = pb.create_uuid()
+    logger.info(f"{message_id} - '!papercite {title}'")
+
+    if title is None:
+        await send(ctx, PAPERCITE_HELP_INFO)
+        return
+
+    paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
+
+    text = pb.format_papers_citing(paper, similar_papers, title, "discord")
     assert isinstance(text, str)
 
     await send(ctx, text)

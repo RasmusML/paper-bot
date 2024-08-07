@@ -73,3 +73,21 @@ def fetch_papers_from_query(
         },
     )
     return req.json()
+
+
+def fetch_papers_citing(paper_id: str, limit: int = None, fields: str = None) -> dict[str, Any]:
+    """Fetch papers citing the paper with title `title`.
+
+    References
+    ----------
+    https://api.semanticscholar.org/api-docs/graph#tag/Paper-Data/operation/get_graph_get_paper_citations
+
+    """
+    req = requests.get(
+        f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}/citations",
+        params={  # type: ignore # @TODO: why?
+            "limit": limit,
+            "fields": fields,
+        },
+    )
+    return req.json()

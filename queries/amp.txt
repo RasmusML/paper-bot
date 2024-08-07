@@ -2,4 +2,4 @@
 + 
 ("discovery" | "discovering" | "generation" | "generating" | "design" | "designing" | "optimization" | "optimizing" | "prediction" | "predicting")
 +
-("generative model" | "deep learning" | "machine learning" | "representation" | "neural network" | "bayesian")
+("generative model" | "deep learning" | "machine learning" | "representation" | "neural network" | "bayesian" | "artificial intelligence")

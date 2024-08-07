@@ -1,6 +1,6 @@
 ("spatial")
 +
-("multiomics" | "multi-omics" | "omics" | "DNA" | "ATAC" | "RNA" | "genomics" | "metagenomics" | "transcriptomics" | "proteomics")
+("multiomics" | "multi-omics" | "omics" | "ATAC" | "RNA" | "metagenomics" | "transcriptomics" | "proteomics")
 +
 ("single-cell" | "cell")
 +

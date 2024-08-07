@@ -11,13 +11,13 @@ logging.basicConfig(level=logging.INFO)
 def fetch_papers(title: str, limit: int):
     """Fetch papers."""
     logging.info("Fetching papers...")
-    paper, similar_papers = paperbot.fetch_similar_papers(title, limit)
+    paper, citing_papers = paperbot.fetch_papers_citing(title, limit)
     logging.info("Done fetching papers.")
 
-    text = paperbot.format_similar_papers(paper, similar_papers, title, format_type="plain")
+    text = paperbot.format_papers_citing(paper, citing_papers, title, format_type="plain")
     logging.info(text)
 
-    n_papers = len(similar_papers)
+    n_papers = len(citing_papers)
     logging.info(f"Number of papers: {n_papers}")
 
 

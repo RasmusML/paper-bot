@@ -41,6 +41,17 @@ def format_similar_papers(
     return fmt.format_similar_papers(paper, similar_papers, paper_title)
 
 
+def format_papers_citing(
+    paper: dict[str, Any] | None,
+    citing_papers: list[dict[str, Any]],
+    paper_title: str,
+    format_type: FormatType = "plain",
+) -> str | list[Any]:
+    """Format papers citing."""
+    fmt = _get_formatter(format_type)
+    return fmt.format_papers_citing(paper, citing_papers, paper_title)
+
+
 def _get_formatter(format_type: FormatType) -> Any:
     try:
         return FORMATTERS[format_type]

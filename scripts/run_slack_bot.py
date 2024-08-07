@@ -31,12 +31,21 @@ PAPERLIKE_HELP_INFO = """
 - Example: `/paperlike "Attention is All You Need"`
 """
 
+
+PAPERCITE_HELP_INFO = """
+*Usage*
+- Use `/papercite <paper_title>` to fetch papers cited.
+- Example: `/papercite "Attention is All You Need"`
+"""
+
+
 TEMPLATE_QUERIES_DIR = "queries/"
 
 # Maximum number of papers to fetch
 QUERY_PAPER_LIMIT = 100
 TEMPLATE_QUERY_PAPER_LIMIT = 500
 SIMILAR_PAPERS_LIMIT = 50
+CITING_PAPERS_LIMIT = 50
 
 load_dotenv()
 
@@ -44,7 +53,21 @@ app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
 
 def parse_arguments(text: str) -> list[str]:
-    return text.split(",")
+    args = text.split(",")
+    args = [arg.strip() for arg in args]
+    return args
+
+
+def parse_bold_text(text: str) -> str:
+    if text.startswith("*") and text.endswith("*"):
+        return text[1:-1]
+    return text
+
+
+def parse_title(title: str) -> str:
+    title = title.replace('"', "")
+    title = parse_bold_text(title)  # copy-pasting paper titles from a website often adds bold text.
+    return title
 
 
 def prepare_blocks_for_message(blocks: list[dict], max_characters_in_block_message=20_000) -> str | None:
@@ -62,7 +85,7 @@ def paperfind(ack, body):
     channel_id = body["channel_id"]
     text = body["text"]
 
-    logger.info(f"{message_id} - /paperfind {text}")
+    logger.info(f"{message_id} - '/paperfind {text}'")
 
     args = parse_arguments(text)
 
@@ -70,7 +93,8 @@ def paperfind(ack, body):
         app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
         return
 
-    query_or_filename, date_since = args
+    query_or_filename = args[0]
+    date_since = args[1]
 
     template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
     query = template_queries.get(query_or_filename, query_or_filename)
@@ -108,7 +132,7 @@ def paperlike(ack, body):
     channel_id = body["channel_id"]
     text = body["text"]
 
-    logger.info(f"{message_id} - /paperlike {text}")
+    logger.info(f"{message_id} - '/paperlike {text}'")
 
     args = parse_arguments(text)
 
@@ -116,13 +140,40 @@ def paperlike(ack, body):
         app.client.chat_postMessage(channel=channel_id, text=PAPERLIKE_HELP_INFO)
         return
 
-    title = args[0].replace('"', "")
+    title = parse_title(args[0])
 
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
     blocks = pb.format_similar_papers(paper, similar_papers, title, format_type="slack-rich")
     blocks_message = prepare_blocks_for_message(blocks)
 
     text = pb.format_similar_papers(paper, similar_papers, title, format_type="slack")
+    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message, unfurl_links=False)
+
+
+@app.command("/papercite")
+def papercite(ack, body):
+    ack()
+
+    message_id = pb.create_uuid()
+
+    channel_id = body["channel_id"]
+    text = body["text"]
+
+    logger.info(f"{message_id} - '/papercite {text}'")
+
+    args = parse_arguments(text)
+
+    if len(args) != 1:
+        app.client.chat_postMessage(channel=channel_id, text=PAPERCITE_HELP_INFO)
+        return
+
+    title = parse_title(args[0])
+
+    paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
+    blocks = pb.format_papers_citing(paper, similar_papers, title, format_type="slack-rich")
+    blocks_message = prepare_blocks_for_message(blocks)
+
+    text = pb.format_papers_citing(paper, similar_papers, title, format_type="slack")
     app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message, unfurl_links=False)
 
 
