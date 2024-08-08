@@ -17,6 +17,10 @@ class ElementFormatter:
         """Make text bold."""
         raise NotImplementedError
 
+    def code_block(self, text: str) -> str:
+        """Format as code block."""
+        raise NotImplementedError
+
 
 class SlackElementFormatter(ElementFormatter):
     def link(self, url: str, text: str = None) -> str:
@@ -27,6 +31,9 @@ class SlackElementFormatter(ElementFormatter):
 
     def bold(self, text: str) -> str:
         return f"*{text}*"
+
+    def code_block(self, text: str) -> str:
+        return f"```{text}```"
 
 
 class DiscordElementFormatter(ElementFormatter):
@@ -39,6 +46,9 @@ class DiscordElementFormatter(ElementFormatter):
     def bold(self, text: str) -> str:
         return f"**{text}**"
 
+    def code_block(self, text: str) -> str:
+        return f"```\n{text}```"
+
 
 class PlainElementFormatter(ElementFormatter):
     def link(self, url: str, text: str = None) -> str:
@@ -50,6 +60,9 @@ class PlainElementFormatter(ElementFormatter):
     def bold(self, text: str) -> str:
         return f"*{text}*"
 
+    def code_block(self, text: str) -> str:
+        return f"`{text}`"
+
 
 class TextFormatter:
     def __init__(self, element_formatter: ElementFormatter):
@@ -57,12 +70,13 @@ class TextFormatter:
 
     def format_query_papers(
         self,
+        query: str | None,
         all_papers: list[dict[str, Any]],
         since: datetime.date,
         add_preamble: bool = True,
     ) -> str:
         """Format query papers."""
-        return format_query_papers(all_papers, since, add_preamble, self.element_formatter)
+        return format_query_papers(query, all_papers, since, add_preamble, self.element_formatter)
 
     def format_similar_papers(
         self,
@@ -149,6 +163,7 @@ def _format_failed_to_find_paper_title(paper_title: str, fmt: ElementFormatter) 
 
 
 def format_query_papers(
+    query: str | None,
     papers: list[dict[str, Any]],
     since: datetime.date,
     add_preamble: bool,
@@ -158,7 +173,7 @@ def format_query_papers(
     papers = [paper for paper in papers if paper["is_paper"]]
 
     output = ""
-    output += _divider(_format_query_header_section(preprints, papers, since, fmt))
+    output += _divider(_format_query_header_section(query, preprints, papers, since, fmt))
     output += _divider(_format_preprint_section(preprints, add_preamble, fmt))
     output += _format_paper_section(papers, add_preamble, fmt)
     return output
@@ -169,6 +184,7 @@ def _divider(text: str) -> str:
 
 
 def _format_query_header_section(
+    query: str | None,
     preprints: list[dict[str, Any]],
     papers: list[dict[str, Any]],
     since: datetime.date,
@@ -184,7 +200,13 @@ def _format_query_header_section(
         since_date = fmt.bold(f"{since}")
         output += f" since {since_date}"
 
-    output += ".\n"
+    if query:
+        output += " using query:\n"
+        output += fmt.code_block(query)
+    else:
+        output += "."
+
+    output += "\n"
 
     return output
 
@@ -211,15 +233,14 @@ def _format_preprint_element(paper: dict[str, Any], add_preamble: bool, fmt: Ele
     output += f"📝 {link}"
 
     if add_preamble:
-        citations = paper.get("citation_count", "?")
         publication_date = paper.get("publication_date", "?")
-        reference_count = paper.get("reference_count", "?")
+        references = paper.get("reference_count", "?")
+        citations = paper.get("citation_count", "?")
 
         date = _format_paper_publication_date(publication_date)
-        output += f"｜📅 {date}｜📚{reference_count}｜💬 {citations}｜"
-        output += "\n"
+        output += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
 
-    output += "\n"
+    output += "\n\n"
 
     return output
 
@@ -246,15 +267,15 @@ def _format_paper_element(paper: dict[str, Any], add_preamble: bool, fmt: Elemen
     output += f"🗞️ {link}"
 
     if add_preamble:
-        citations = paper.get("citation_count", "?")
         publication_date = paper.get("publication_date", "?")
-        reference_count = paper.get("reference_count", "?")
+        references = paper.get("reference_count", "?")
+        citations = paper.get("citation_count", "?")
 
         date = _format_paper_publication_date(publication_date)
-        output += f"｜📅 {date}｜📚{reference_count}｜💬 {citations}｜"
+        output += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
         output += "\n"
 
-    output += "\n"
+    output += "\n\n"
 
     return output
 

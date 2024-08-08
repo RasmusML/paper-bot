@@ -22,7 +22,7 @@ def fetch_papers(query: str, since: datetime.date, until: datetime.date, limit: 
     )
     logging.info("Done fetching papers.")
 
-    text = paperbot.format_query_papers(papers, since, format_type="plain")
+    text = paperbot.format_query_papers(query, papers, since, format_type="plain")
     logging.info(text)
 
     n_papers = len(papers)

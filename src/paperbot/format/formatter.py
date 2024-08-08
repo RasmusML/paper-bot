@@ -21,6 +21,7 @@ assert set(FORMATTERS.keys()) == set(typing.get_args(FormatType))
 
 
 def format_query_papers(
+    query: str | None,
     papers: list[dict[str, Any]],
     since: datetime.date,
     add_preamble: bool = True,
@@ -28,7 +29,7 @@ def format_query_papers(
 ) -> str | list[Any]:
     """Format the fetched papers."""
     fmt = _get_formatter(format_type)
-    return fmt.format_query_papers(papers, since, add_preamble)
+    return fmt.format_query_papers(query, papers, since, add_preamble)
 
 
 def format_similar_papers(

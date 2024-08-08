@@ -119,6 +119,7 @@ async def paperfind(ctx):
     date_since = args[1]
     add_preamble = "no_extra" not in opt_args
     split_message = "split" in opt_args
+    show_query = "query" in opt_args
 
     template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
     query = template_queries.get(query_or_filename, query_or_filename)
@@ -140,7 +141,8 @@ async def paperfind(ctx):
         logger.error(f"{message_id} - Something went very wrong...")
         return
 
-    text = pb.format_query_papers(papers, since, add_preamble, "discord")
+    query_to_show = query if show_query else None
+    text = pb.format_query_papers(query_to_show, papers, since, add_preamble, "discord")
     assert isinstance(text, str)
 
     text_content = text.split("\n") if split_message else text
