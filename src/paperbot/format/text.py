@@ -207,16 +207,18 @@ def _format_preprint_element(paper: dict[str, Any], add_preamble: bool, fmt: Ele
     url = paper["url"]
     title = paper["title"]
 
+    link = fmt.link(url, title)
+    output += f"📝 {link}"
+
     if add_preamble:
         citations = paper["citation_count"]
         publication_date = paper.get("publication_date")
 
         date = _format_paper_publication_date(publication_date)
-        output += f"📅 {date}, 💬 {citations}\n"
+        output += f"｜📅 {date}｜💬 {citations}｜"
+        output += "\n"
 
-    link = fmt.link(url, title)
-    output += f"📝 {link}"
-    output += "\n\n\n" if add_preamble else "\n"
+    output += "\n"
 
     return output
 
@@ -239,23 +241,25 @@ def _format_paper_element(paper: dict[str, Any], add_preamble: bool, fmt: Elemen
     url = paper["url"]
     title = paper["title"]
 
+    link = fmt.link(url, title)
+    output += f"🗞️ {link}"
+
     if add_preamble:
         citations = paper["citation_count"]
         publication_date = paper.get("publication_date")
 
         date = _format_paper_publication_date(publication_date)
-        output += f"📅 {date}, 💬 {citations}\n"
+        output += f"｜📅 {date}｜💬 {citations}｜"
+        output += "\n"
 
-    link = fmt.link(url, title)
-    output += f"🗞️ {link}"
-    output += "\n\n\n" if add_preamble else "\n"
+    output += "\n"
 
     return output
 
 
 def _format_paper_publication_date(date: str | None) -> str:
     if date is None:
-        return "????"
+        return "????-??"
 
     date_format = datetime.datetime.strptime(date, "%Y-%m-%d")
-    return date_format.strftime("%Y")
+    return date_format.strftime("%Y-%m")

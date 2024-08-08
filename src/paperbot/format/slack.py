@@ -232,28 +232,38 @@ def _format_preprint_element(paper: dict[str, Any], add_preamble: bool) -> list[
     url = paper["url"]
     title = paper["title"]
 
+    elements += [
+        rt.text("📝 "),
+        rt.link(url, title),
+    ]
+
     if add_preamble:
         citations = paper["citation_count"]
         publication_date = paper.get("publication_date")
 
         date = _format_paper_publication_date(publication_date)
-        elements += [rt.text("📅 "), rt.text(f"{date}, "), rt.text("💬 "), rt.text(f"{citations}\n")]
+        elements += [
+            rt.text("｜"),
+            rt.text("📅 "),
+            rt.text(f"{date}, "),
+            rt.text("｜"),
+            rt.text("💬 "),
+            rt.text(f"{citations}"),
+            rt.text("｜"),
+            rt.text("\n"),
+        ]
 
-    elements += [
-        rt.text("📝 "),
-        rt.link(url, title),
-    ]
-    elements += [rt.text("\n\n\n\n")] if add_preamble else [rt.text("\n\n")]
+    elements += [rt.text("\n")]
 
     return elements
 
 
 def _format_paper_publication_date(date: str | None) -> str:
     if date is None:
-        return "????"
+        return "????-??"
 
     date_format = datetime.datetime.strptime(date, "%Y-%m-%d")
-    return date_format.strftime("%Y")
+    return date_format.strftime("%Y-%m")
 
 
 def _format_paper_element(paper: dict[str, Any], add_preamble: bool) -> list[Any]:
@@ -262,18 +272,28 @@ def _format_paper_element(paper: dict[str, Any], add_preamble: bool) -> list[Any
     url = paper["url"]
     title = paper["title"]
 
+    elements += [
+        rt.text("🗞️ "),
+        rt.link(url, title),
+    ]
+
     if add_preamble:
         citations = paper["citation_count"]
         publication_date = paper.get("publication_date")
 
         date = _format_paper_publication_date(publication_date)
-        elements += [rt.text("📅 "), rt.text(f"{date}, "), rt.text("💬 "), rt.text(f"{citations}\n")]
+        elements += [
+            rt.text("｜"),
+            rt.text("📅 "),
+            rt.text(f"{date} "),
+            rt.text("｜"),
+            rt.text("💬 "),
+            rt.text(f"{citations}"),
+            rt.text("｜"),
+            rt.text("\n"),
+        ]
 
-    elements += [
-        rt.text("🗞️ "),
-        rt.link(url, title),
-    ]
-    elements += [rt.text("\n\n\n\n")] if add_preamble else [rt.text("\n\n")]
+    elements += [rt.text("\n")]
 
     return elements
 

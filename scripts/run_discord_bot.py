@@ -7,6 +7,7 @@ References
 
 """
 
+import asyncio
 import datetime
 import logging
 import os
@@ -82,14 +83,18 @@ def break_text_with_newlines(text: str, max_length: int) -> list[str]:
     return texts
 
 
-async def send(ctx, text: str):
-    texts = break_text_with_newlines(text, max_length=2_000)
+async def send(ctx, text: str | list[str]):
+    texts1 = [text] if isinstance(text, str) else text
 
-    # discord can not send whitespace messages
-    texts = list(filter(lambda x: x.strip() != "", texts))
+    BURST_DELAY_IN_SECONDS = 0.1
 
-    for text in texts:
-        await ctx.send(text)
+    for text1 in texts1:
+        texts2 = break_text_with_newlines(text1, max_length=2_000)
+        texts2 = list(filter(lambda t: t.strip() != "", texts2))
+
+        for text2 in texts2:
+            await asyncio.sleep(BURST_DELAY_IN_SECONDS)
+            await ctx.send(text2)
 
 
 @bot.command()
@@ -112,7 +117,8 @@ async def paperfind(ctx):
 
     query_or_filename = args[0]
     date_since = args[1]
-    add_preamble = not opt_args.get("compact", False)
+    add_preamble = "no_extra" not in opt_args
+    split_message = "split" in opt_args
 
     template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
     query = template_queries.get(query_or_filename, query_or_filename)
@@ -137,7 +143,8 @@ async def paperfind(ctx):
     text = pb.format_query_papers(papers, since, add_preamble, "discord")
     assert isinstance(text, str)
 
-    await send(ctx, text)
+    text_content = text.split("\n") if split_message else text
+    await send(ctx, text_content)
 
 
 @bot.command()
@@ -151,22 +158,23 @@ async def paperlike(ctx):
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
     except pb.ParseException:
-        await send(ctx, PAPERFIND_HELP_INFO)
+        await send(ctx, PAPERLIKE_HELP_INFO)
         return
 
     if len(args) != 1:
-        await send(ctx, PAPERFIND_HELP_INFO)
+        await send(ctx, PAPERLIKE_HELP_INFO)
         return
 
     title = args[0]
-    add_preamble = not opt_args.get("compact", False)
+    add_preamble = "no_extra" not in opt_args
+    split_message = "split" in opt_args
 
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
-
     text = pb.format_similar_papers(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 
-    await send(ctx, text)
+    text_content = text.split("\n") if split_message else text
+    await send(ctx, text_content)
 
 
 @bot.command()
@@ -180,22 +188,23 @@ async def papercite(ctx):
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
     except pb.ParseException:
-        await send(ctx, PAPERFIND_HELP_INFO)
+        await send(ctx, PAPERCITE_HELP_INFO)
         return
 
     if len(args) != 1:
-        await send(ctx, PAPERFIND_HELP_INFO)
+        await send(ctx, PAPERCITE_HELP_INFO)
         return
 
     title = args[0]
-    add_preamble = not opt_args.get("compact", False)
+    add_preamble = "no_extra" not in opt_args
+    split_message = "split" in opt_args
 
     paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
-
     text = pb.format_papers_citing(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 
-    await send(ctx, text)
+    text_content = text.split("\n") if split_message else text
+    await send(ctx, text_content)
 
 
 if __name__ == "__main__":

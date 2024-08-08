@@ -10,6 +10,7 @@ import datetime
 import json
 import logging
 import os
+import time
 
 import paperbot as pb
 from dotenv import load_dotenv
@@ -58,10 +59,24 @@ def unbold_text(text: str) -> str:
     return text
 
 
-def prepare_blocks_for_message(blocks: list[dict], max_characters_in_block_message=20_000) -> str | None:
-    blocks_str = json.dumps(blocks)
-    block_message = None if len(blocks_str) > max_characters_in_block_message else blocks_str
-    return block_message
+def send(channel_id: str, message: str | list[str], unfurl_links=False):
+    if isinstance(message, str):
+        app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl_links)
+        return
+
+    # send multiple messages as a burst
+    messages = list(filter(lambda x: x.strip() != "", message))
+
+    if len(messages) == 0:
+        return
+
+    BURST_DELAY_IN_SECONDS = 1  # Slack API rate limit
+
+    app.client.chat_postMessage(channel=channel_id, text=messages[0], unfurl_links=unfurl_links)
+
+    for message in messages[1:]:
+        time.sleep(BURST_DELAY_IN_SECONDS)
+        app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl_links)
 
 
 @app.command("/paperfind")
@@ -78,15 +93,17 @@ def paperfind(ack, body):
     try:
         args, opt_args = pb.parse_arguments(text)
     except pb.ParseException:
-        app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
+        send(channel_id, PAPERFIND_HELP_INFO)
+        return
 
     if len(args) != 2:
-        app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
+        send(channel_id, PAPERFIND_HELP_INFO)
         return
 
     query_or_filename = args[0]
     date_since = args[1]
-    add_preamble = not opt_args.get("compact", False)
+    add_preamble = "no_extra" not in opt_args
+    split_message = "split" in opt_args
 
     template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
     query = template_queries.get(query_or_filename, query_or_filename)
@@ -95,24 +112,23 @@ def paperfind(ack, body):
     try:
         since = datetime.date.fromisoformat(date_since)
     except ValueError:
-        app.client.chat_postMessage(channel=channel_id, text="Invalid date format. Please use `YYYY-MM-DD`.")
+        send(channel_id, "Invalid date format. Please use `YYYY-MM-DD`.")
         return
 
     try:
         papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
     except ValueError:
-        app.client.chat_postMessage(channel=channel_id, text="Invalid query. Please check the syntax.")
+        send(channel_id, "Invalid query. Please check the syntax.")
         return
     except RuntimeError:
-        app.client.chat_postMessage(channel=channel_id, text="Something went very wrong...")
+        send(channel_id, "Something went very wrong...")
         logger.error(f"{message_id} - Something went very wrong...")
         return
 
-    blocks = pb.format_query_papers(papers, since, format_type="slack-rich", add_preamble=add_preamble)
-    blocks_message = prepare_blocks_for_message(blocks)
+    text = pb.format_query_papers(papers, since, add_preamble, format_type="slack")
 
-    text = pb.format_query_papers(papers, since, format_type="slack", add_preamble=add_preamble)
-    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message, unfurl_links=False)
+    text_content = text.split("\n") if split_message else text
+    send(channel_id, text_content, unfurl_links=False)
 
 
 @app.command("/paperlike")
@@ -129,22 +145,23 @@ def paperlike(ack, body):
     try:
         args, opt_args = pb.parse_arguments(text)
     except pb.ParseException:
-        app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
+        send(channel_id, PAPERLIKE_HELP_INFO)
+        return
 
     if len(args) != 1:
-        app.client.chat_postMessage(channel=channel_id, text=PAPERLIKE_HELP_INFO)
+        send(channel_id, PAPERLIKE_HELP_INFO)
         return
 
     # copy-pasting paper titles from a website often adds bold text.
     title = unbold_text(args[0])
-    add_preamble = not opt_args.get("compact", False)
+    add_preamble = "no_extra" not in opt_args
+    split_message = "split" in opt_args
 
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
-    blocks = pb.format_similar_papers(paper, similar_papers, title, format_type="slack-rich", add_preamble=add_preamble)
-    blocks_message = prepare_blocks_for_message(blocks)
+    text = pb.format_similar_papers(paper, similar_papers, title, add_preamble, format_type="slack")
 
-    text = pb.format_similar_papers(paper, similar_papers, title, format_type="slack")
-    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message, unfurl_links=False)
+    text_content = text.split("\n") if split_message else text
+    send(channel_id, text_content, unfurl_links=False)
 
 
 @app.command("/papercite")
@@ -161,21 +178,22 @@ def papercite(ack, body):
     try:
         args, opt_args = pb.parse_arguments(text)
     except pb.ParseException:
-        app.client.chat_postMessage(channel=channel_id, text=PAPERFIND_HELP_INFO)
+        send(channel_id, PAPERCITE_HELP_INFO)
+        return
 
     if len(args) != 1:
-        app.client.chat_postMessage(channel=channel_id, text=PAPERCITE_HELP_INFO)
+        send(channel_id, PAPERCITE_HELP_INFO)
         return
 
     title = unbold_text(args[0])
-    add_preamble = not opt_args.get("compact", False)
+    add_preamble = "no_extra" not in opt_args
+    split_message = "split" in opt_args
 
     paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
-    blocks = pb.format_papers_citing(paper, similar_papers, title, format_type="slack-rich", add_preamble=add_preamble)
-    blocks_message = prepare_blocks_for_message(blocks)
+    text = pb.format_papers_citing(paper, similar_papers, title, add_preamble, format_type="slack")
 
-    text = pb.format_papers_citing(paper, similar_papers, title, format_type="slack")
-    app.client.chat_postMessage(channel=channel_id, text=text, blocks=blocks_message, unfurl_links=False)
+    text_content = text.split("\n") if split_message else text
+    send(channel_id, text_content, unfurl_links=False)
 
 
 if __name__ == "__main__":
