@@ -118,10 +118,14 @@ def format_papers_citing(
 
     paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
     paper_bold = fmt.bold(paper_title)
-    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers citing {paper_bold}.\n\n"
+
+    preprint_text = "preprint" if len(preprints) == 1 else "preprints"
+    paper_text = "paper" if len(papers) == 1 else "papers"
+
+    output = f"🔍 {paperbot} found {n_preprints} {preprint_text} and {n_papers} {paper_text} citing {paper_bold}.\n\n"
 
     # rest
-    output += _divider(_format_preprint_section(preprints, add_preamble, fmt))
+    output += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
     output += _format_paper_section(papers, add_preamble, fmt)
 
     return output
@@ -146,10 +150,16 @@ def format_similar_papers(
 
     paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
     paper_bold = fmt.bold(paper_title)
-    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers similar to {paper_bold}.\n\n"
+
+    preprint_text = "preprint" if len(preprints) == 1 else "preprints"
+    paper_text = "paper" if len(papers) == 1 else "papers"
+
+    output = (
+        f"🔍 {paperbot} found {n_preprints} {preprint_text} and {n_papers} {paper_text} similar to {paper_bold}.\n\n"
+    )
 
     # rest
-    output += _divider(_format_preprint_section(preprints, add_preamble, fmt))
+    output += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
     output += _format_paper_section(papers, add_preamble, fmt)
 
     return output
@@ -173,13 +183,13 @@ def format_query_papers(
     papers = [paper for paper in papers if paper["is_paper"]]
 
     output = ""
-    output += _divider(_format_query_header_section(query, preprints, papers, since, fmt))
-    output += _divider(_format_preprint_section(preprints, add_preamble, fmt))
+    output += _divide_block(_format_query_header_section(query, preprints, papers, since, fmt))
+    output += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
     output += _format_paper_section(papers, add_preamble, fmt)
     return output
 
 
-def _divider(text: str) -> str:
+def _divide_block(text: str) -> str:
     return "" if text == "" else f"{text}\n"
 
 
@@ -193,8 +203,11 @@ def _format_query_header_section(
     n_preprints = fmt.bold(f"{len(preprints)}")
     n_papers = fmt.bold(f"{len(papers)}")
 
+    preprint_text = "preprint" if len(preprints) == 1 else "preprints"
+    paper_text = "paper" if len(papers) == 1 else "papers"
+
     paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-    output = f"🔍 {paperbot} found {n_preprints} preprints and {n_papers} papers"
+    output = f"🔍 {paperbot} found {n_preprints} {preprint_text} and {n_papers} {paper_text}"
 
     if since:
         since_date = fmt.bold(f"{since}")
@@ -233,11 +246,12 @@ def _format_preprint_element(paper: dict[str, Any], add_preamble: bool, fmt: Ele
     output += f"📝 {link}"
 
     if add_preamble:
-        publication_date = paper.get("publication_date", "?")
+        publication_date = paper.get("publication_date")
+        date = _format_paper_publication_date(publication_date)
+
         references = paper.get("reference_count", "?")
         citations = paper.get("citation_count", "?")
 
-        date = _format_paper_publication_date(publication_date)
         output += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
 
     output += "\n\n"
@@ -267,11 +281,12 @@ def _format_paper_element(paper: dict[str, Any], add_preamble: bool, fmt: Elemen
     output += f"🗞️ {link}"
 
     if add_preamble:
-        publication_date = paper.get("publication_date", "?")
+        publication_date = paper.get("publication_date")
+        date = _format_paper_publication_date(publication_date)
+
         references = paper.get("reference_count", "?")
         citations = paper.get("citation_count", "?")
 
-        date = _format_paper_publication_date(publication_date)
         output += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
         output += "\n"
 

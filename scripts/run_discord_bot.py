@@ -83,6 +83,44 @@ def break_text_with_newlines(text: str, max_length: int) -> list[str]:
     return texts
 
 
+def split_into_blocks(text: str) -> list[str]:
+    blocks = []
+
+    block = []
+    inside_code_block = False
+    lines = text.split("\n")
+
+    for line in lines:
+        # 1. handle code block
+        if line.startswith("```"):
+            assert not inside_code_block
+
+            inside_code_block = True
+            block.append(line)
+
+            continue
+
+        if line.endswith("```"):
+            assert inside_code_block
+
+            inside_code_block = False
+
+            block.append(line)
+            blocks.append("\n".join(block))
+            block = []
+
+            continue
+
+        if inside_code_block:
+            block.append(line)
+            continue
+
+        # 2. handle normal text
+        blocks += [line]
+
+    return blocks
+
+
 async def send(ctx, text: str | list[str]):
     texts1 = [text] if isinstance(text, str) else text
 
@@ -145,7 +183,7 @@ async def paperfind(ctx):
     text = pb.format_query_papers(query_to_show, papers, since, add_preamble, "discord")
     assert isinstance(text, str)
 
-    text_content = text.split("\n") if split_message else text
+    text_content = split_into_blocks(text) if split_message else text
     await send(ctx, text_content)
 
 
@@ -175,7 +213,7 @@ async def paperlike(ctx):
     text = pb.format_similar_papers(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 
-    text_content = text.split("\n") if split_message else text
+    text_content = split_into_blocks(text) if split_message else text
     await send(ctx, text_content)
 
 
@@ -205,7 +243,7 @@ async def papercite(ctx):
     text = pb.format_papers_citing(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 
-    text_content = text.split("\n") if split_message else text
+    text_content = split_into_blocks(text) if split_message else text
     await send(ctx, text_content)
 
 

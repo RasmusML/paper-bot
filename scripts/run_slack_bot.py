@@ -79,6 +79,44 @@ def send(channel_id: str, message: str | list[str], unfurl_links=False):
         app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl_links)
 
 
+def split_into_blocks(text: str) -> list[str]:
+    blocks = []
+
+    block = []
+    inside_code_block = False
+    lines = text.split("\n")
+
+    for line in lines:
+        # 1. handle code block
+        if line.startswith("```"):
+            assert not inside_code_block
+
+            inside_code_block = True
+            block.append(line)
+
+            continue
+
+        if line.endswith("```"):
+            assert inside_code_block
+
+            inside_code_block = False
+
+            block.append(line)
+            blocks.append("\n".join(block))
+            block = []
+
+            continue
+
+        if inside_code_block:
+            block.append(line)
+            continue
+
+        # 2. handle normal text
+        blocks += [line]
+
+    return blocks
+
+
 @app.command("/paperfind")
 def paperfind(ack, body):
     ack()
@@ -129,7 +167,7 @@ def paperfind(ack, body):
     query_to_show = query if show_query else None
     text = pb.format_query_papers(query_to_show, papers, since, add_preamble, format_type="slack")
 
-    text_content = text.split("\n") if split_message else text
+    text_content = split_into_blocks(text) if split_message else text
     send(channel_id, text_content, unfurl_links=False)
 
 
@@ -162,7 +200,7 @@ def paperlike(ack, body):
     paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
     text = pb.format_similar_papers(paper, similar_papers, title, add_preamble, format_type="slack")
 
-    text_content = text.split("\n") if split_message else text
+    text_content = split_into_blocks(text) if split_message else text
     send(channel_id, text_content, unfurl_links=False)
 
 
@@ -194,7 +232,7 @@ def papercite(ack, body):
     paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
     text = pb.format_papers_citing(paper, similar_papers, title, add_preamble, format_type="slack")
 
-    text_content = text.split("\n") if split_message else text
+    text_content = split_into_blocks(text) if split_message else text
     send(channel_id, text_content, unfurl_links=False)
 
 
