@@ -3,18 +3,16 @@ import logging
 import typing
 from typing import Any, Literal
 
-from paperbot.format.slack import SlackRichTextFormatter
 from paperbot.format.text import DiscordElementFormatter, PlainElementFormatter, SlackElementFormatter, TextFormatter
 
 logger = logging.getLogger(__name__)
 
-FormatType = Literal["plain", "slack", "discord", "slack-rich"]
+FormatType = Literal["plain", "slack", "discord"]
 
 FORMATTERS = {
     "plain": TextFormatter(PlainElementFormatter()),
     "slack": TextFormatter(SlackElementFormatter()),
     "discord": TextFormatter(DiscordElementFormatter()),
-    "slack-rich": SlackRichTextFormatter(),
 }
 
 assert set(FORMATTERS.keys()) == set(typing.get_args(FormatType))
