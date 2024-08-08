@@ -6,7 +6,7 @@ import paperbot.fetch.semantic_scholar as ss
 
 def fetch_similar_papers(title: str, limit=5) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Fetch similar papers."""
-    fields = "paperId,title,url,externalIds"
+    fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
     raw_paper = ss.fetch_paper_from_title(title, fields)
 
     if ("error" in raw_paper) and (raw_paper["error"] == "Title match not found"):
@@ -53,7 +53,7 @@ def fetch_papers_from_query(
 
 def fetch_papers_citing(title: str, limit: int = 5) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Fetch papers citing title paper."""
-    fields = "paperId,title,url,externalIds"
+    fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
     raw_paper = ss.fetch_paper_from_title(title, fields)
 
     if ("error" in raw_paper) and (raw_paper["error"] == "Title match not found"):

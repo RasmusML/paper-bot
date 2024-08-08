@@ -122,17 +122,18 @@ def split_into_blocks(text: str) -> list[str]:
 
 
 async def send(ctx, text: str | list[str]):
-    texts1 = [text] if isinstance(text, str) else text
+    messages = [text] if isinstance(text, str) else text
 
-    BURST_DELAY_IN_SECONDS = 0.1
+    DELAY_BETWEEN_MESSAGES_IN_SECONDS = 0.1  # Discord API rate limit
+    MAX_MESSAGE_LENGTH = 2_000  # Discord max message length
 
-    for text1 in texts1:
-        texts2 = break_text_with_newlines(text1, max_length=2_000)
-        texts2 = list(filter(lambda t: t.strip() != "", texts2))
+    for message in messages:
+        sendable_messages = break_text_with_newlines(message, max_length=MAX_MESSAGE_LENGTH)
+        sendable_messages = list(filter(lambda s: s.strip() != "", sendable_messages))
 
-        for text2 in texts2:
-            await asyncio.sleep(BURST_DELAY_IN_SECONDS)
-            await ctx.send(text2)
+        for sendable_message in sendable_messages:
+            await asyncio.sleep(DELAY_BETWEEN_MESSAGES_IN_SECONDS)
+            await ctx.send(sendable_message)
 
 
 @bot.command()

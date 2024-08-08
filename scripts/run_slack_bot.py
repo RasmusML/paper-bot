@@ -70,12 +70,12 @@ def send(channel_id: str, message: str | list[str], unfurl_links=False):
     if len(messages) == 0:
         return
 
-    BURST_DELAY_IN_SECONDS = 1  # Slack API rate limit
+    DELAY_BETWEEN_MESSAGES_IN_SECONDS = 1  # Slack API rate limit
 
     app.client.chat_postMessage(channel=channel_id, text=messages[0], unfurl_links=unfurl_links)
 
     for message in messages[1:]:
-        time.sleep(BURST_DELAY_IN_SECONDS)
+        time.sleep(DELAY_BETWEEN_MESSAGES_IN_SECONDS)
         app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl_links)
 
 

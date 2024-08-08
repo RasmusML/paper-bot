@@ -113,22 +113,26 @@ def format_papers_citing(
     papers = [paper for paper in citing_papers if paper["is_paper"]]
 
     # header
-    n_preprints = fmt.bold(f"{len(preprints)}")
-    n_papers = fmt.bold(f"{len(papers)}")
+    t_n_preprints = fmt.bold(f"{len(preprints)}")
+    t_n_papers = fmt.bold(f"{len(papers)}")
 
-    paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-    paper_bold = fmt.bold(paper_title)
+    t_paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
 
-    preprint_text = "preprint" if len(preprints) == 1 else "preprints"
-    paper_text = "paper" if len(papers) == 1 else "papers"
+    if paper["is_paper"]:
+        t_paper_info = _format_as_paper(paper, add_preamble, fmt)
+    else:
+        t_paper_info = _format_as_preprint(paper, add_preamble, fmt)
 
-    output = f"🔍 {paperbot} found {n_preprints} {preprint_text} and {n_papers} {paper_text} citing {paper_bold}.\n\n"
+    t_preprint = "preprint" if len(preprints) == 1 else "preprints"
+    t_paper = "paper" if len(papers) == 1 else "papers"
+
+    text = f"🔍 {t_paperbot} found {t_n_preprints} {t_preprint} and {t_n_papers} {t_paper} citing {t_paper_info}\n\n"
 
     # rest
-    output += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
-    output += _format_paper_section(papers, add_preamble, fmt)
+    text += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
+    text += _format_paper_section(papers, add_preamble, fmt)
 
-    return output
+    return text
 
 
 def format_similar_papers(
@@ -145,24 +149,25 @@ def format_similar_papers(
     papers = [paper for paper in similar_papers if paper["is_paper"]]
 
     # header
-    n_preprints = fmt.bold(f"{len(preprints)}")
-    n_papers = fmt.bold(f"{len(papers)}")
+    t_n_preprints = fmt.bold(f"{len(preprints)}")
+    t_n_papers = fmt.bold(f"{len(papers)}")
 
-    paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-    paper_bold = fmt.bold(paper_title)
+    t_paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
+    if paper["is_paper"]:
+        t_paper_info = _format_as_paper(paper, add_preamble, fmt)
+    else:
+        t_paper_info = _format_as_preprint(paper, add_preamble, fmt)
 
-    preprint_text = "preprint" if len(preprints) == 1 else "preprints"
-    paper_text = "paper" if len(papers) == 1 else "papers"
+    t_preprint = "preprint" if len(preprints) == 1 else "preprints"
+    t_paper = "paper" if len(papers) == 1 else "papers"
 
-    output = (
-        f"🔍 {paperbot} found {n_preprints} {preprint_text} and {n_papers} {paper_text} similar to {paper_bold}.\n\n"
-    )
+    text = f"🔍 {t_paperbot} found {t_n_preprints} {t_preprint} and {t_n_papers} {t_paper} similar to {t_paper_info}.\n\n"
 
     # rest
-    output += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
-    output += _format_paper_section(papers, add_preamble, fmt)
+    text += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
+    text += _format_paper_section(papers, add_preamble, fmt)
 
-    return output
+    return text
 
 
 def _format_failed_to_find_paper_title(paper_title: str, fmt: ElementFormatter) -> str:
@@ -182,11 +187,11 @@ def format_query_papers(
     preprints = [paper for paper in papers if not paper["is_paper"]]
     papers = [paper for paper in papers if paper["is_paper"]]
 
-    output = ""
-    output += _divide_block(_format_query_header_section(query, preprints, papers, since, fmt))
-    output += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
-    output += _format_paper_section(papers, add_preamble, fmt)
-    return output
+    text = ""
+    text += _divide_block(_format_query_header_section(query, preprints, papers, since, fmt))
+    text += _divide_block(_format_preprint_section(preprints, add_preamble, fmt))
+    text += _format_paper_section(papers, add_preamble, fmt)
+    return text
 
 
 def _divide_block(text: str) -> str:
@@ -203,47 +208,48 @@ def _format_query_header_section(
     n_preprints = fmt.bold(f"{len(preprints)}")
     n_papers = fmt.bold(f"{len(papers)}")
 
-    preprint_text = "preprint" if len(preprints) == 1 else "preprints"
-    paper_text = "paper" if len(papers) == 1 else "papers"
+    t_preprint = "preprint" if len(preprints) == 1 else "preprints"
+    t_paper = "paper" if len(papers) == 1 else "papers"
 
-    paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
-    output = f"🔍 {paperbot} found {n_preprints} {preprint_text} and {n_papers} {paper_text}"
+    t_paperbot = fmt.link("https://github.com/RasmusML/paper-bot", "PaperBot")
+    text = f"🔍 {t_paperbot} found {n_preprints} {t_preprint} and {n_papers} {t_paper}"
 
     if since:
-        since_date = fmt.bold(f"{since}")
-        output += f" since {since_date}"
+        t_since_date = fmt.bold(f"{since}")
+        text += f" since {t_since_date}"
 
     if query:
-        output += " using query:\n"
-        output += fmt.code_block(query)
+        text += " using query:\n"
+        text += fmt.code_block(query)
     else:
-        output += "."
+        text += "."
 
-    output += "\n"
+    text += "\n"
 
-    return output
+    return text
 
 
 def _format_preprint_section(preprints: list[dict[str, Any]], add_preamble: bool, fmt: ElementFormatter) -> str:
     if not preprints:
         return ""
 
-    preprint_items = [_format_preprint_element(preprint, add_preamble, fmt) for preprint in preprints]
-    preprint_list = "".join(preprint for preprint in preprint_items)
-    preprint_list = preprint_list.rstrip("\n")
+    preprint_items = [_format_as_preprint(preprint, add_preamble, fmt) for preprint in preprints]
+    t_preprint_list = "".join(preprint + "\n\n" for preprint in preprint_items)
+    t_preprint_list = t_preprint_list.rstrip("\n")
 
-    header = fmt.bold("Preprints")
-    return f"{header}\n{preprint_list}\n"
+    t_header = fmt.bold("Preprints")
+
+    return f"{t_header}\n{t_preprint_list}\n"
 
 
-def _format_preprint_element(paper: dict[str, Any], add_preamble: bool, fmt: ElementFormatter) -> str:
-    output = ""
+def _format_as_preprint(paper: dict[str, Any], add_preamble: bool, fmt: ElementFormatter) -> str:
+    text = ""
 
     url = paper["url"]
     title = paper["title"]
 
     link = fmt.link(url, title)
-    output += f"📝 {link}"
+    text += f"📝 {link}"
 
     if add_preamble:
         publication_date = paper.get("publication_date")
@@ -252,33 +258,31 @@ def _format_preprint_element(paper: dict[str, Any], add_preamble: bool, fmt: Ele
         references = paper.get("reference_count", "?")
         citations = paper.get("citation_count", "?")
 
-        output += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
+        text += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
 
-    output += "\n\n"
-
-    return output
+    return text
 
 
 def _format_paper_section(papers: list[dict[str, Any]], add_preamable: bool, fmt: ElementFormatter) -> str:
     if not papers:
         return ""
 
-    paper_items = [_format_paper_element(paper, add_preamable, fmt) for paper in papers]
-    paper_list = "".join(paper for paper in paper_items)
+    paper_items = [_format_as_paper(paper, add_preamable, fmt) for paper in papers]
+    paper_list = "".join(paper + "\n\n" for paper in paper_items)
     paper_list = paper_list.rstrip("\n")
 
     header = fmt.bold("Papers")
     return f"{header}\n{paper_list}\n"
 
 
-def _format_paper_element(paper: dict[str, Any], add_preamble: bool, fmt: ElementFormatter) -> str:
-    output = ""
+def _format_as_paper(paper: dict[str, Any], add_preamble: bool, fmt: ElementFormatter) -> str:
+    text = ""
 
     url = paper["url"]
     title = paper["title"]
 
     link = fmt.link(url, title)
-    output += f"🗞️ {link}"
+    text += f"🗞️ {link}"
 
     if add_preamble:
         publication_date = paper.get("publication_date")
@@ -287,12 +291,9 @@ def _format_paper_element(paper: dict[str, Any], add_preamble: bool, fmt: Elemen
         references = paper.get("reference_count", "?")
         citations = paper.get("citation_count", "?")
 
-        output += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
-        output += "\n"
+        text += f"｜📅 {date}｜📚{references}｜💬 {citations}｜"
 
-    output += "\n\n"
-
-    return output
+    return text
 
 
 def _format_paper_publication_date(date: str | None) -> str:
