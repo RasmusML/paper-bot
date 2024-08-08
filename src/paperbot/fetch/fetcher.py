@@ -14,7 +14,7 @@ def fetch_similar_papers(title: str, limit=5) -> tuple[dict[str, Any], list[dict
 
     paper = _extract_paper_data(raw_paper["data"][0])
 
-    fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount"
+    fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
     raw_similar_papers = ss.fetch_similar_papers_from_id(
         paper["id"],
         from_pool="all-cs",
@@ -36,7 +36,7 @@ def fetch_papers_from_query(
     limit: int = None,
 ) -> list[dict[str, Any]]:
     """Fetch papers."""
-    fields = "title,url,externalIds,publicationTypes,publicationDate,year,citationCount"
+    fields = "title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
     publication_period = _format_publication_period(since, until)
     raw_papers = ss.fetch_papers_from_query(query, fields, publication_period)
 
@@ -61,7 +61,7 @@ def fetch_papers_citing(title: str, limit: int = 5) -> tuple[dict[str, Any], lis
 
     paper = _extract_paper_data(raw_paper["data"][0])
 
-    fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount"
+    fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
     raw_citing_papers = ss.fetch_papers_citing(
         paper["id"],
         limit=limit,
@@ -99,6 +99,7 @@ def _extract_paper_data(paper: dict[str, Any]) -> dict[str, Any]:
     publication_date = paper.get("publicationDate")
     year = paper.get("year")
     citation_count = paper.get("citationCount")
+    reference_count = paper.get("referenceCount")
 
     doi = None
     if "externalIds" in paper:
@@ -117,6 +118,7 @@ def _extract_paper_data(paper: dict[str, Any]) -> dict[str, Any]:
         "publication_date": publication_date,
         "is_paper": is_paper,
         "citation_count": citation_count,
+        "reference_count": reference_count,
     }
 
     result = {k: v for k, v in full_result.items() if v is not None}

@@ -211,11 +211,12 @@ def _format_preprint_element(paper: dict[str, Any], add_preamble: bool, fmt: Ele
     output += f"📝 {link}"
 
     if add_preamble:
-        citations = paper["citation_count"]
-        publication_date = paper.get("publication_date")
+        citations = paper.get("citation_count", "?")
+        publication_date = paper.get("publication_date", "?")
+        reference_count = paper.get("reference_count", "?")
 
         date = _format_paper_publication_date(publication_date)
-        output += f"｜📅 {date}｜💬 {citations}｜"
+        output += f"｜📅 {date}｜📚{reference_count}｜💬 {citations}｜"
         output += "\n"
 
     output += "\n"
@@ -245,11 +246,12 @@ def _format_paper_element(paper: dict[str, Any], add_preamble: bool, fmt: Elemen
     output += f"🗞️ {link}"
 
     if add_preamble:
-        citations = paper["citation_count"]
-        publication_date = paper.get("publication_date")
+        citations = paper.get("citation_count", "?")
+        publication_date = paper.get("publication_date", "?")
+        reference_count = paper.get("reference_count", "?")
 
         date = _format_paper_publication_date(publication_date)
-        output += f"｜📅 {date}｜💬 {citations}｜"
+        output += f"｜📅 {date}｜📚{reference_count}｜💬 {citations}｜"
         output += "\n"
 
     output += "\n"
