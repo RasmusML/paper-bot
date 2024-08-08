@@ -1,4 +1,4 @@
-python-dotenv
-discord.py
-slack_bolt
-types-requests
+python-dotenv==1.0.1
+discord.py==2.3.2
+slack_bolt==1.19.0
+types-requests==2.32.0.20240622

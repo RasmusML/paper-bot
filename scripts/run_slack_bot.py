@@ -236,5 +236,10 @@ def papercite(ack, body):
     send(channel_id, text_content, unfurl_links=False)
 
 
+@app.event("message")
+def handle_message_events(body):
+    pass
+
+
 if __name__ == "__main__":
     SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"]).start()

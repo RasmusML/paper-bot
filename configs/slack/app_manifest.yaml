@@ -9,7 +9,7 @@ features:
   slash_commands:
     - command: /paperfind
       description: Retrieve scientific papers based on keyword search query
-      usage_hint: query,since
+      usage_hint: query since
       should_escape: false
     - command: /paperlike
       description: Retrieve scientific papers similar to an existing paper
