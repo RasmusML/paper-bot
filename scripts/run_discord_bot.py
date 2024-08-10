@@ -16,6 +16,7 @@ import discord
 import paperbot as pb
 from discord.ext import commands
 from dotenv import load_dotenv
+from paperbot import ParseException
 
 logger = logging.getLogger(__name__)
 pb.init_bot_logger(logger, "logs/discord.log")
@@ -146,7 +147,7 @@ async def paperfind(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except pb.ParseException:
+    except ParseException:
         await send(ctx, PAPERFIND_HELP_INFO)
         return
 
@@ -170,15 +171,7 @@ async def paperfind(ctx):
         await send(ctx, "Invalid date format. Please use YYYY-MM-DD.")
         return
 
-    try:
-        papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
-    except ValueError:
-        await send(ctx, "Invalid query. Please check the syntax.")
-        return
-    except RuntimeError:
-        await send(ctx, "Something went very wrong...")
-        logger.error(f"{message_id} - Something went very wrong...")
-        return
+    papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
 
     query_to_show = query if show_query else None
     text = pb.format_query_papers(query_to_show, papers, since, add_preamble, "discord")
@@ -198,7 +191,7 @@ async def paperlike(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except pb.ParseException:
+    except ParseException:
         await send(ctx, PAPERLIKE_HELP_INFO)
         return
 
@@ -228,7 +221,7 @@ async def papercite(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except pb.ParseException:
+    except ParseException:
         await send(ctx, PAPERCITE_HELP_INFO)
         return
 

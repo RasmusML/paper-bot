@@ -7,13 +7,13 @@ References
 """
 
 import datetime
-import json
 import logging
 import os
 import time
 
 import paperbot as pb
 from dotenv import load_dotenv
+from paperbot import ParseException
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
@@ -130,7 +130,7 @@ def paperfind(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except pb.ParseException:
+    except ParseException:
         send(channel_id, PAPERFIND_HELP_INFO)
         return
 
@@ -154,15 +154,7 @@ def paperfind(ack, body):
         send(channel_id, "Invalid date format. Please use `YYYY-MM-DD`.")
         return
 
-    try:
-        papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
-    except ValueError:
-        send(channel_id, "Invalid query. Please check the syntax.")
-        return
-    except RuntimeError:
-        send(channel_id, "Something went very wrong...")
-        logger.error(f"{message_id} - Something went very wrong...")
-        return
+    papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
 
     query_to_show = query if show_query else None
     text = pb.format_query_papers(query_to_show, papers, since, add_preamble, format_type="slack")
@@ -184,7 +176,7 @@ def paperlike(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except pb.ParseException:
+    except ParseException:
         send(channel_id, PAPERLIKE_HELP_INFO)
         return
 
@@ -217,7 +209,7 @@ def papercite(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except pb.ParseException:
+    except ParseException:
         send(channel_id, PAPERCITE_HELP_INFO)
         return
 
@@ -236,6 +228,7 @@ def papercite(ack, body):
     send(channel_id, text_content, unfurl_links=False)
 
 
+# silence the 'unhandled message' logging warnings
 @app.event("message")
 def handle_message_events(body):
     pass

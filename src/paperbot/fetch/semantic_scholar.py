@@ -16,7 +16,7 @@ def fetch_similar_papers_from_id(
     https://api.semanticscholar.org/api-docs/recommendations#tag/Paper-Recommendations/operation/get_papers_for_paper
 
     """
-    req = requests.get(
+    res = requests.get(
         f"https://api.semanticscholar.org/recommendations/v1/papers/forpaper/{paper_id}",
         params={
             "from": from_pool,
@@ -24,7 +24,8 @@ def fetch_similar_papers_from_id(
             "fields": fields,
         },
     )
-    return req.json()
+    res.raise_for_status()
+    return res.json()
 
 
 def fetch_paper_from_title(
@@ -38,14 +39,15 @@ def fetch_paper_from_title(
     https://api.semanticscholar.org/api-docs/graph#tag/Paper-Data/operation/get_graph_paper_title_search
 
     """
-    req = requests.get(
+    res = requests.get(
         "https://api.semanticscholar.org/graph/v1/paper/search/match",
         params={
             "query": title,
             "fields": fields,
         },
     )
-    return req.json()
+    res.raise_for_status()
+    return res.json()
 
 
 def fetch_papers_from_query(
@@ -62,7 +64,7 @@ def fetch_papers_from_query(
     https://api.semanticscholar.org/api-docs/graph#tag/Paper-Data/operation/get_graph_paper_bulk_search
 
     """
-    req = requests.get(
+    res = requests.get(
         "https://api.semanticscholar.org/graph/v1/paper/search/bulk",
         params={
             "query": query,
@@ -72,7 +74,8 @@ def fetch_papers_from_query(
             "token": token,
         },
     )
-    return req.json()
+    res.raise_for_status()
+    return res.json()
 
 
 def fetch_papers_citing(paper_id: str, limit: int = None, fields: str = None) -> dict[str, Any]:
@@ -83,11 +86,12 @@ def fetch_papers_citing(paper_id: str, limit: int = None, fields: str = None) ->
     https://api.semanticscholar.org/api-docs/graph#tag/Paper-Data/operation/get_graph_get_paper_citations
 
     """
-    req = requests.get(
+    res = requests.get(
         f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}/citations",
         params={  # type: ignore # @TODO: why?
             "limit": limit,
             "fields": fields,
         },
     )
-    return req.json()
+    res.raise_for_status()
+    return res.json()
