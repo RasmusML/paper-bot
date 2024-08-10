@@ -22,20 +22,20 @@ pb.init_bot_logger(logger, "logs/slack.log")
 
 PAPERFIND_HELP_INFO = """
 *Usage*
-- Use `/paperfind <query> <date_since>` to fetch papers.
+- Use `/paperfind <query> <since>` to fetch papers.
 - Example: `/paperfind '("machine learning" | "ML") + "AMP"' 2022-01-01`
 """
 
 PAPERLIKE_HELP_INFO = """
 *Usage*
-- Use `/paperlike <paper_title>` to fetch similar papers.
+- Use `/paperlike <title>` to fetch similar papers.
 - Example: `/paperlike 'Attention is All You Need'`
 """
 
 
 PAPERCITE_HELP_INFO = """
 *Usage*
-- Use `/papercite <paper_title>` to fetch papers citing this paper.
+- Use `/papercite <title>` to fetch papers citing this paper.
 - Example: `/papercite 'Could a Neuroscientist Understand a Microprocessor?'`
 """
 
@@ -138,15 +138,27 @@ def paperfind(ack, body):
         send(channel_id, PAPERFIND_HELP_INFO)
         return
 
-    query_or_filename = args[0]
+    query_or_template = args[0]
     date_since = args[1]
     add_preamble = "no_extra" not in opt_args
+    show_query = "no_query" not in opt_args
     split_message = "split" in opt_args
-    show_query = "query" in opt_args
+    is_template = "template" in opt_args
 
-    template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
-    query = template_queries.get(query_or_filename, query_or_filename)
-    limit = TEMPLATE_QUERY_PAPER_LIMIT if query_or_filename in template_queries else QUERY_PAPER_LIMIT
+    if is_template:
+        template_queries = pb.read_queries_from_dir(TEMPLATE_QUERIES_DIR)
+
+        if query_or_template not in template_queries:
+            path = os.path.join(TEMPLATE_QUERIES_DIR, f"{query_or_template}.txt")
+            path = path.replace("\n", "\\n")
+            send(channel_id, f"Template query `{path}` not found.")
+            return
+
+        query = template_queries[query_or_template]
+        limit = TEMPLATE_QUERY_PAPER_LIMIT
+    else:
+        query = query_or_template
+        limit = QUERY_PAPER_LIMIT
 
     try:
         since = datetime.date.fromisoformat(date_since)
