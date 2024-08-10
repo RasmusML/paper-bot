@@ -46,7 +46,7 @@ def _print_result(d):
         print(f"- {t_title}{t_embeddings}{t_p_s}{t_abstract}")
 
 
-def evalulate_query(
+def evaluate_query(
     query_titles: np.ndarray,
     positives_titles: np.ndarray,
     max_tokens: int,
@@ -207,7 +207,7 @@ if __name__ == "__main__":
         q_titles = f.readlines()
         query_titles = np.array([title.strip() for title in q_titles])
 
-    evalulate_query(
+    evaluate_query(
         query_titles,
         positives_titles,
         args.max_tokens,
