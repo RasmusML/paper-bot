@@ -164,7 +164,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--query_list",
         type=str,
-        help="Path to text file with (newline seperated) paper titles from query to be evalulated.",
+        help="Path to text file with (newline seperated) paper titles from query to be evaluated.",
         default="papers/query.txt",
     )
 

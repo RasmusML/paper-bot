@@ -14,6 +14,7 @@ import os
 
 import discord
 import paperbot as pb
+import requests
 from discord.ext import commands
 from dotenv import load_dotenv
 from paperbot import ArgumentParserException
@@ -183,7 +184,11 @@ async def paperfind(ctx):
         await send(ctx, "Invalid date format. Please use YYYY-MM-DD.")
         return
 
-    papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
+    try:
+        papers = pb.fetch_papers_from_query(query, since=since, limit=limit)
+    except requests.exceptions.RequestException:
+        await send(ctx, "Request to Semantic Scholar failed. Please try again later.")
+        return
 
     query_to_show = query if show_query else None
     text = pb.format_query_papers(query_to_show, papers, since, add_preamble, "discord")
@@ -215,7 +220,12 @@ async def paperlike(ctx):
     add_preamble = "no_extra" not in opt_args
     split_message = "split" in opt_args
 
-    paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
+    try:
+        paper, similar_papers = pb.fetch_similar_papers(title, limit=SIMILAR_PAPERS_LIMIT)
+    except requests.exceptions.RequestException:
+        await send(ctx, "Request to Semantic Scholar failed. Please try again later.")
+        return
+
     text = pb.format_similar_papers(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 
@@ -245,7 +255,12 @@ async def papercite(ctx):
     add_preamble = "no_extra" not in opt_args
     split_message = "split" in opt_args
 
-    paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
+    try:
+        paper, similar_papers = pb.fetch_papers_citing(title, limit=CITING_PAPERS_LIMIT)
+    except requests.exceptions.RequestException:
+        await send(ctx, "Request to Semantic Scholar failed. Please try again later.")
+        return
+
     text = pb.format_papers_citing(paper, similar_papers, title, add_preamble, "discord")
     assert isinstance(text, str)
 

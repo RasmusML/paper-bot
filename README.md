@@ -8,7 +8,7 @@ A [client] bot to retrieve scientific papers from [database].
 
 ## Commands
 
-Retrieve papers published after `<since>` and satisfying `<query>`. `<query>` uses the Semantic Scholar search-format. [Example](/queries/amp.txt).
+Retrieve papers published after `<since>` and satisfying `<query>`. `<query>` uses the Semantic Scholar search-format. [Example](queries/amp.txt).
 
 ```
 /paperfind <query> <since> [--no_extra] [--no_query] [--split] [--template]
@@ -33,7 +33,7 @@ Retrieve papers citing paper with `<title>`.
 - `--no_extra`: Don't include `｜📅 publication date｜📚 reference count｜💬 citation count｜` in the bot response.
 - `--no_query`: Don't include the original query in the bot response.
 - `--split`: Bot sends a seperate message for each paper retrieved.
-- `--template`: Uses the query in `queries/<query>.txt` as the search query.
+- `--template`: Use the query in `queries/<query>.txt` as the search query.
 
 ## Installation
 
