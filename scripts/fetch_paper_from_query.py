@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import logging
+import os
 
 import paperbot
 
@@ -11,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 TEMPLATE_QUERIES_DIR = "queries/"
 
 
-def fetch_papers(query: str, since: datetime.date, until: datetime.date, limit: int):
+def fetch_papers(query: str, since: datetime.date, until: datetime.date, limit: int, save_titles: bool):
     """Fetch papers."""
     logging.info("Fetching papers...")
     papers = paperbot.fetch_papers_from_query(
@@ -28,6 +29,16 @@ def fetch_papers(query: str, since: datetime.date, until: datetime.date, limit: 
     n_papers = len(papers)
     logging.info(f"Number of papers: {n_papers}")
 
+    if save_titles:
+        path = "outputs/query.txt"
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        titles = [paper["title"] for paper in papers]
+        content = "".join([title + "\n" for title in titles])
+
+        with open(path, "w") as file:
+            file.write(content)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -39,6 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--since", type=str, help="Start date", default="2022-01-01")
     parser.add_argument("--until", type=str, help="End date")
     parser.add_argument("--limit", type=int, help="Max number of papers to fetch")
+    parser.add_argument("--save", action="store_true", help="Save papers to a file")
 
     args = parser.parse_args()
 
@@ -52,5 +64,6 @@ if __name__ == "__main__":
     since = datetime.date.fromisoformat(args.since) if args.since else None
     until = datetime.date.fromisoformat(args.until) if args.until else None
     limit = args.limit
+    save_titles = args.save
 
-    fetch_papers(query, since, until, limit)
+    fetch_papers(query, since, until, limit, save_titles)

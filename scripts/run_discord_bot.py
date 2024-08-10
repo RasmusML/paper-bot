@@ -16,7 +16,7 @@ import discord
 import paperbot as pb
 from discord.ext import commands
 from dotenv import load_dotenv
-from paperbot import ParseException
+from paperbot import ArgumentParserException
 
 logger = logging.getLogger(__name__)
 pb.init_bot_logger(logger, "logs/discord.log")
@@ -147,7 +147,7 @@ async def paperfind(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except ParseException:
+    except ArgumentParserException:
         await send(ctx, PAPERFIND_HELP_INFO)
         return
 
@@ -191,7 +191,7 @@ async def paperlike(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except ParseException:
+    except ArgumentParserException:
         await send(ctx, PAPERLIKE_HELP_INFO)
         return
 
@@ -221,7 +221,7 @@ async def papercite(ctx):
 
     try:
         args, opt_args = pb.parse_arguments(raw_arguments)
-    except ParseException:
+    except ArgumentParserException:
         await send(ctx, PAPERCITE_HELP_INFO)
         return
 

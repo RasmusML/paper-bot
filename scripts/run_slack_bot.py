@@ -13,7 +13,7 @@ import time
 
 import paperbot as pb
 from dotenv import load_dotenv
-from paperbot import ParseException
+from paperbot import ArgumentParserException
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 
@@ -130,7 +130,7 @@ def paperfind(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except ParseException:
+    except ArgumentParserException:
         send(channel_id, PAPERFIND_HELP_INFO)
         return
 
@@ -176,7 +176,7 @@ def paperlike(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except ParseException:
+    except ArgumentParserException:
         send(channel_id, PAPERLIKE_HELP_INFO)
         return
 
@@ -209,7 +209,7 @@ def papercite(ack, body):
 
     try:
         args, opt_args = pb.parse_arguments(text)
-    except ParseException:
+    except ArgumentParserException:
         send(channel_id, PAPERCITE_HELP_INFO)
         return
 

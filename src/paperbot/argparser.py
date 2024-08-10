@@ -75,20 +75,20 @@ def _remove_argument_container(text: str | bool) -> str | bool:
     return text
 
 
-class ParseException(Exception):
+class ArgumentParserException(Exception):
     pass
 
 
-class PositionalArgumentRedefinitionException(ParseException):
+class PositionalArgumentRedefinitionException(ArgumentParserException):
     def __init__(self, arg_name: str):
         super().__init__(f"Positional argument ({arg_name}) already defined")
 
 
-class UnexpectedPositionalArgumentException(ParseException):
+class UnexpectedPositionalArgumentException(ArgumentParserException):
     def __init__(self, arg: str):
         super().__init__(f"Unexpected positional argument ({arg}) after optional arguments")
 
 
-class ArgumentDidNotEndException(ParseException):
+class ArgumentDidNotEndException(ArgumentParserException):
     def __init__(self):
         super().__init__('Argument did not end. Did you forget a "\'"?')

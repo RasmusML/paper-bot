@@ -1,47 +1,35 @@
 import datetime
 from typing import Any
 
-from requests.exceptions import HTTPError
-from requests.models import Response
-
 import paperbot.fetch.semantic_scholar as ss
 
 
 def fetch_single_paper(title: str) -> dict[str, Any] | None:
     """Fetch a single paper."""
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount,abstract"
-
-    try:
-        papers = ss.fetch_paper_from_title(title, fields)
-        return _extract_paper_data(papers["data"][0])
-    except HTTPError as err:
-        if _is_no_title_matching(err.response):
-            return None
-        raise err
+    papers = ss.fetch_paper_from_title(title, fields)
+    return _extract_paper_data(papers["data"][0])
 
 
 def fetch_similar_papers(title: str, limit=5) -> tuple[dict[str, Any], list[dict[str, Any]]] | tuple[None, list]:
     """Fetch similar papers."""
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
 
-    try:
-        papers = ss.fetch_paper_from_title(title, fields)
-    except HTTPError as err:
-        if _is_no_title_matching(err.response):
-            return None, []
-        raise err
+    raw_paper = ss.fetch_paper_from_title(title, fields)
+    if raw_paper is None:
+        return None, []
 
-    paper = _extract_paper_data(papers["data"][0])
+    paper = _extract_paper_data(raw_paper["data"][0])
 
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
-    papers = ss.fetch_similar_papers_from_id(
+    raw_similar_papers = ss.fetch_similar_papers_from_id(
         paper["id"],
         from_pool="all-cs",
         limit=limit,
         fields=fields,
     )
 
-    similar_papers = [_extract_paper_data(paper) for paper in papers["recommendedPapers"]]
+    similar_papers = [_extract_paper_data(paper) for paper in raw_similar_papers["recommendedPapers"]]
     similar_papers = _remove_duplicate_papers(similar_papers)
     similar_papers = _sort_papers_by_date(similar_papers)
 
@@ -72,14 +60,11 @@ def fetch_papers_citing(title: str, limit: int = 5) -> tuple[dict[str, Any], lis
     """Fetch papers citing title paper."""
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
 
-    try:
-        papers = ss.fetch_paper_from_title(title, fields)
-    except HTTPError as err:
-        if _is_no_title_matching(err.response):
-            return None, []
-        raise err
+    raw_paper = ss.fetch_paper_from_title(title, fields)
+    if raw_paper is None:
+        return None, []
 
-    paper = _extract_paper_data(papers["data"][0])
+    paper = _extract_paper_data(raw_paper["data"][0])
 
     fields = "paperId,title,url,externalIds,publicationTypes,publicationDate,year,citationCount,referenceCount"
     raw_citing_papers = ss.fetch_papers_citing(
@@ -172,9 +157,3 @@ def _sort_papers_by_date(papers: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _get_url_from_doi(doi_id: str) -> str:
     return f"https://doi.org/{doi_id}"
-
-
-def _is_no_title_matching(response: Response) -> bool:
-    status_code = response.status_code
-    content = response.json()
-    return (status_code == 404) and content.get("error") == "Title match not found"
