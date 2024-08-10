@@ -7,27 +7,33 @@ A [client] bot to retrieve scientific papers from [database].
 **Databases**: Semantic Scholar (ACM, arXiv, bioRxiv, medRxiv, PubMed, ...).
 
 ## Commands
-Retrieve papers published after `<since>` and satisfying `<query>`. `<query>` uses the Semantic Scholar search-format. If `<query>` matches a template in `queries/`, the template is used instead, e.g., `amp` uses [queries/amp.txt](queries/amp.txt).
+
+Retrieve papers published after `<since>` and satisfying `<query>`. `<query>` uses the Semantic Scholar search-format.
+
 ```
-/paperfind <query> <since> [--split] [--no_extra] [--no_query]
+/paperfind <query> <since> [--no_extra] [--no_query] [--split] [--template]
 ```
 
 Retrieve papers "similar" to paper with `<title>`.
+
 ```
-/paperlike <title> [--split] [--no_extra]
+/paperlike <title> [--no_extra] [--split]
 ```
 
 Retrieve papers citing paper with `<title>`.
+
 ```
-/papercite <title> [--split] [--no_extra]
+/papercite <title> [--no_extra] [--split]
 ```
 
 **Note**: On discord, prefix a command with `!` instead of `/`, e.g., `!paperfind [...]`.
 
 ### Optional flags
+
 - `--split`: Bot sends a seperate message for each paper retrieved.
 - `--no_extra`: Don't include `｜📅 publication date｜📚 reference count｜💬 citation count｜` in the bot response.
 - `--no_query`: Don't include the original query in the bot response.
+- `--template`: Uses the query in `queries/<query>.txt` as the search query, e.g., `amp` for `queries/amp.txt`.
 
 ## Installation
 
@@ -42,4 +48,5 @@ pip install -e .
 ```
 
 ## Setup
+
 Add client tokens to `.env` in project root and run the desired clients bot script located in `scripts/`.
