@@ -87,7 +87,7 @@ def evaluate_query(
     print(f"Recall: {recall_query:.2f}")
 
     # Print true positives and false positives
-    p_s, _, positives_mask = p_score(query_embeddings, positives_embeddings, k=k, q=q)
+    p_scores, _, positives_mask = p_score(query_embeddings, positives_embeddings, k=k, q=q)
 
     combined_embeddings = np.concatenate((positives_embeddings, query_embeddings), axis=0)
     combined_embeddings = np.unique(combined_embeddings, axis=0, return_index=False)
@@ -98,24 +98,24 @@ def evaluate_query(
     positives_embeddings_pca = pca.transform(positives_embeddings)
     query_embeddings_pca = pca.transform(query_embeddings)
 
-    q_inside = {
+    query_tp = {
         "titles": query_titles[precision_mask],
         "pca": query_embeddings_pca[precision_mask],
-        "p_scores": p_s[precision_mask],
+        "p_scores": p_scores[precision_mask],
         "has_abstract": ["abstract" in q for q in positives],
     }
 
-    print("\n*Inside positives manifold*")
-    _print_result(q_inside)
-    q_outside = {
+    print("\n*True positives*")
+    _print_result(query_tp)
+    query_fp = {
         "titles": query_titles[~precision_mask],
         "pca": query_embeddings_pca[~precision_mask],
-        "p_scores": p_s[~precision_mask],
+        "p_scores": p_scores[~precision_mask],
         "has_abstract": ["abstract" in q for q in query],
     }
 
-    print("\n*Outside positives manifold*")
-    _print_result(q_outside)
+    print("\n*False positives*")
+    _print_result(query_fp)
 
     # Plot variance explained
     fig, ax = plt.subplots(figsize=(5, 5))
@@ -143,8 +143,8 @@ def evaluate_query(
         label="positives ignored",
     )
 
-    ax.scatter(q_inside["pca"][:, 0], q_inside["pca"][:, 1], c="lime", label="query inside")
-    ax.scatter(q_outside["pca"][:, 0], q_outside["pca"][:, 1], c="red", label="query outside")
+    ax.scatter(query_tp["pca"][:, 0], query_tp["pca"][:, 1], c="lime", label="query inside")
+    ax.scatter(query_fp["pca"][:, 0], query_fp["pca"][:, 1], c="red", label="query outside")
 
     ax.set_xlabel("PC1")
     ax.set_ylabel("PC2")

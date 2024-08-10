@@ -169,6 +169,7 @@ async def paperfind(ctx):
             path = os.path.join(TEMPLATE_QUERIES_DIR, f"{query_or_template}.txt")
             path = path.replace("\n", "\\n")
             await send(ctx, f"Template query `{path}` not found.")
+            return
 
         query = template_queries[query_or_template]
         limit = TEMPLATE_QUERY_PAPER_LIMIT
