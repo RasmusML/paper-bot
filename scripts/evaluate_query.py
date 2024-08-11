@@ -63,14 +63,16 @@ def evaluate_query(
     logging.info("Fetching positves.")
     positives = _fetch_papers(positives_titles, max_attempts=max_attempts_to_fetch)
 
-    positives_with_abstract = np.sum(["abstract" in p for p in positives]) / len(positives)
-    logging.info(f"{positives_with_abstract*100:.0f}% positives contain abstract")
+    positives_with_abstract = np.array(["abstract" in p for p in positives])
+    n_positives_with_abstract = np.sum(positives_with_abstract) / len(positives)
+    logging.info(f"{n_positives_with_abstract*100:.0f}% positives contain abstract")
 
     logging.info("Fetching queries.")
     query = _fetch_papers(query_titles, max_attempts=max_attempts_to_fetch)
 
-    query_with_abstract = np.sum(["abstract" in p for p in query]) / len(query)
-    logging.info(f"{query_with_abstract*100:.0f}% queries contain abstract")
+    query_with_abstract = np.array(["abstract" in p for p in query])
+    n_query_with_abstract = np.sum(query_with_abstract) / len(query)
+    logging.info(f"{n_query_with_abstract*100:.0f}% queries contain abstract")
 
     model = Specter2()
     positives_embeddings = model.get_embeddings(positives, max_length=max_tokens)
@@ -102,16 +104,17 @@ def evaluate_query(
         "titles": query_titles[precision_mask],
         "pca": query_embeddings_pca[precision_mask],
         "p_scores": p_scores[precision_mask],
-        "has_abstract": ["abstract" in q for q in positives],
+        "has_abstract": query_with_abstract[precision_mask],
     }
 
     print("\n*True positives*")
     _print_result(query_tp)
+
     query_fp = {
         "titles": query_titles[~precision_mask],
         "pca": query_embeddings_pca[~precision_mask],
         "p_scores": p_scores[~precision_mask],
-        "has_abstract": ["abstract" in q for q in query],
+        "has_abstract": query_with_abstract[~precision_mask],
     }
 
     print("\n*False positives*")
@@ -165,7 +168,7 @@ if __name__ == "__main__":
         "--query_list",
         type=str,
         help="Path to text file with (newline seperated) paper titles from query to be evaluated.",
-        default="papers/query.txt",
+        default="outputs/query.txt",
     )
 
     parser.add_argument(

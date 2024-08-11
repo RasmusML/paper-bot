@@ -1,0 +1,107 @@
+Random Copolymer inverse design system orienting on Accurate discovering of Antimicrobial peptide-mimetic copolymers
+Polypharmacological Cell-Penetrating Peptides from Venomous Marine Animals Based on Immunomodulating Antimicrobial and Anticancer Properties
+AMP‐BERT: Prediction of antimicrobial peptide function based on a BERT model
+Network Science and Group Fusion Similarity-Based Searching to Explore the Chemical Space of Antiparasitic Peptides
+Anti-Microbial Peptides Against Methicillin-resistant Staphylococcus aureus: Promising Therapeutics.
+In silico characterization of Cnidarian’s antimicrobial peptides
+Cell-free biosynthesis combined with deep learning accelerates de novo-development of antimicrobial peptides
+Embedded-AMP: A Multi-Thread Computational Method for the Systematic Identification of Antimicrobial Peptides Embedded in Proteome Sequences
+Prediction of Antimicrobial Peptides Using Deep Neural Networks
+Identification of potent antimicrobial peptides via a machine-learning pipeline that mines the entire space of peptide sequences
+Deep Learning-Based Bioactive Therapeutic Peptide Generation and Screening
+Models and data of AMPlify: a deep learning tool for antimicrobial peptide prediction
+Discovering highly potent antimicrobial peptides with deep generative model HydrAMP
+Rational design of stapled antimicrobial peptides
+Krein support vector machine classification of antimicrobial peptides
+Designing antimicrobial peptides using deep learning and molecular dynamic simulations
+Modulating Nucleic Acid Phase Transitions as a Mechanism of Action for Cell-Penetrating Antimicrobial Peptides
+Bacteria-Specific Feature Selection for Enhanced Antimicrobial Peptide Activity Predictions Using Machine-Learning Methods
+Fish antimicrobial peptides: at a glance
+Intelligent De Novo Design of Novel Antimicrobial Peptides against Antibiotic-Resistant Bacteria Strains
+Quantum Annealing Designs Nonhemolytic Antimicrobial Peptides in a Discrete Latent Space
+AMP-GSM: Prediction of Antimicrobial Peptides via a Grouping–Scoring–Modeling Approach
+Advances in Antimicrobial Peptide Discovery via Machine Learning and Delivery via Nanotechnology
+THE APPLICATION OF ARTIFICIAL INTELLIGENCE IN ANTIBIOTIC DISCOVERY: AN OVERVIEW OF CURRENT AND FUTURE PERSPECTIVE
+Evolutionary Multi-Objective Optimization in Searching for Various Antimicrobial Peptides [Feature]
+sAMP-VGG16: Drude polarizable force-field assisted image-based deep neural network prediction model for short antimicrobial peptides
+A deep learning method for predicting the minimum inhibitory concentration of antimicrobial peptides against Escherichia coli using Multi-Branch-CNN and Attention
+Geometric deep learning as a potential tool for antimicrobial peptide prediction
+smAMPsTK: a toolkit to unravel the smORFome encoding AMPs of plant species.
+AMP-EBiLSTM: employing novel deep learning strategies for the accurate prediction of antimicrobial peptides
+A Novel Classification Method for Antimicrobial Peptides Based on ProteinBERT
+StarPep Toolbox: an open-source software to assist chemical space analysis of bioactive peptides and their functions using complex networks
+Artificial intelligence-driven antimicrobial peptide discovery
+A separable temporal convolutional networks based deep learning technique for discovering antiviral medicines
+Author Correction: Discovering highly potent antimicrobial peptides with deep generative model HydrAMP
+Review and perspective on bioinformatics tools using machine learning and deep learning for predicting antiviral peptides
+Computational exploration of the global microbiome for antibiotic discovery
+Mining extinct proteomes for antimicrobial peptides
+The antimicrobial peptide database is 20 years old: Recent developments and future directions
+Deep mutational scanning and machine learning uncover antimicrobial peptide features driving membrane selectivity
+Gut-targeted nanoparticles deliver specifically targeted antimicrobial peptides against Clostridium perfringens infections
+Molecular de-extinction of antibiotics enabled by deep learning
+AMPpred-MFA: An Interpretable Antimicrobial Peptide Predictor with a Stacking Architecture, Multiple Features, and Multihead Attention
+Expansion of novel biosynthetic gene clusters from diverse environments using SanntiS
+Physicochemical and sequence determinants of antiviral peptides.
+Semantic search using protein large language models detects class II microcins in bacterial genomes
+Design methods for antimicrobial peptides with improved performance
+iAMP-Attenpred: a novel antimicrobial peptide predictor based on BERT feature extraction method and CNN-BiLSTM-Attention combination model
+A Novel AI-Designed Antimicrobial Peptide Synergistically Potentiates Aminoglycosides against Colistin- and Carbapenem-Resistant Acinetobacter baumannii
+Establishing Quantifiable Guidelines for Antimicrobial α/β-Peptide Design: A Partial Least-Squares Approach to Improve Antimicrobial Activity and Reduce Mammalian Cell Toxicity.
+Binary Discriminator Facilitates GPT-based Protein Design
+Multi-CGAN: Deep Generative Model-Based Multiproperty Antimicrobial Peptide Design
+MDTL-ACP: Anticancer Peptides Prediction Based on Multi-Domain Transfer Learning.
+Genome mining of Streptomyces for the discovery of low-resistance antibiotics
+Antibiotic resistance and a dire need for novel and innovative therapies: The impending crisis
+De novo multi-mechanism antimicrobial peptide design via multimodal deep learning
+Machine learning assisted rational design of antimicrobial peptides based on human endogenous proteins and their applications for cosmetic preservative system optimization
+Prediction of the synergistic effect of antimicrobial peptides and antimicrobial agents via supervised machine learning
+Diff-AMP: tailored designed antimicrobial peptide framework with all-in-one generation, identification, prediction and optimization
+Antimicrobial resistance crisis: could artificial intelligence be the solution?
+Immunomodulatory Peptides as Vaccine Adjuvants and Antimicrobial Agents
+Comprehensive Machine Learning Analysis of Long and Middle Peptides: Supervised and Unsupervised Approaches
+Emerging strategies and therapeutic innovations for combating drug resistance in Staphylococcus aureus strains: A comprehensive review
+Physical-Chemical Approach to Designing Drugs with Multiple Targets.
+Controllable Protein Design by Prefix-Tuning Protein Language Models
+Accelerating Antimicrobial Peptide Discovery for WHO Priority Pathogens through Predictive and Interpretable Machine Learning Models
+The discovery of antimicrobial peptides from the gut microbiome of cockroach Blattella germanica using deep learning pipeline
+ProT-Diff: A Modularized and Efficient Approach to De Novo Generation of Antimicrobial Peptide Sequences through Integration of Protein Language Model and Diffusion Model
+Exploring the repository of de novo designed bifunctional antimicrobial peptides through deep learning
+Novel antimicrobial peptides against Cutibacterium acnes designed by deep learning
+Machine learning for antimicrobial peptide identification and design
+Machine Learning Accelerates De Novo Design of Antimicrobial Peptides.
+AMP-Diffusion: Integrating Latent Diffusion with Protein Language Models for Antimicrobial Peptide Generation
+Deepstacked-AVPs: predicting antiviral peptides using tri-segment evolutionary profile and word embedding based multi-perspective features with deep stacking model
+Antimicrobial peptides designed by computational analysis of proteomes
+A novel stacking-based predictor for accurate prediction of antimicrobial peptides.
+sAMP-VGG16: Force-field assisted image-based deep neural network prediction model for short antimicrobial peptides.
+Machine learning enabled design features of antimicrobial peptides selectively targeting peri-implant disease progression
+Biomimetic Synthesis of Nanosilica by Deep Learning‐Designed Peptides and Its Anti‐UV Application
+Multitask Classification of Antimicrobial Peptides for Simultaneous Assessment of Antimicrobial Property and Structural Fold
+AMPCliff: quantitative definition and benchmarking of activity cliffs in antimicrobial peptides
+Can large language models predict antimicrobial peptide activity and toxicity?
+Relationship Between Biophysical Properties of Antimicrobial Peptides (AMPs) and their Associated Drug Efficacies
+SAMP: Identifying Antimicrobial Peptides by an Ensemble Learning Model Based on Proportionalized Split Amino Acid Composition
+De Novo Antimicrobial Peptide Design with Feedback Generative Adversarial Networks
+HMAMP: Hypervolume-Driven Multi-Objective Antimicrobial Peptides Design
+AMPActiPred: A three‐stage framework for predicting antibacterial peptides and activity levels with deep forest
+Predicting Antimicrobial Peptides Using ESMFold-Predicted Structures and ESM-2-Based Amino Acid Features with Graph Deep Learning
+Advancing drug-response prediction using multi-modal and -omics machine learning integration (MOMLIN): a case study on breast cancer clinical data
+TP-LMMSG: a peptide prediction graph neural network incorporating flexible amino acid property representation
+Structure-aware machine learning strategies for antimicrobial peptide discovery
+Discovery of antimicrobial peptides in the global microbiome with machine learning
+MoFormer: Multi-objective Antimicrobial Peptide Generation Based on Conditional Transformer Joint Multi-modal Fusion Descriptor
+AMP-RNNpro: a two-stage approach for identification of antimicrobials using probabilistic features
+Deep-learning-enabled antibiotic discovery through molecular de-extinction.
+Novel Antimicrobial Peptide Design Using Motif Match Score Representation.
+Correction to: Machine Learning Accelerates De Novo Design of Antimicrobial Peptides.
+Structure‐aware deep learning model for peptide toxicity prediction
+Identification, Synthesis, and In Vitro Activities of Antimicrobial Peptide from African Catfish against the Extended-Spectrum Beta-Lactamase (ESBL)-Producing Escherichia coli
+De novo synthetic antimicrobial peptide design with a recurrent neural network
+Identification and Design of Novel Potential Antimicrobial Peptides Targeting Mycobacterial Protein Kinase PknB.
+A foundation model approach to guide antimicrobial peptide design in the era of artificial intelligence driven scientific discovery
+deepAMPNet: a novel antimicrobial peptide predictor employing AlphaFold2 predicted structures and a bi-directional long short-term memory protein language model
+Prediction of inhibitory peptides against E. coli with desired MIC value
+Next-Generation strategies to combat antimicrobial resistance: Integrating genomics, CRISPR, and novel therapeutics for effective treatment
+Deep mutational scanning and machine learning for the analysis of antimicrobial-peptide features driving membrane selectivity.
+DMAMP: A deep-learning model for detecting antimicrobial peptides and their multi-activities.

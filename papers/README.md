@@ -1,0 +1,2 @@
+# What are these papers for?
+A collection of curated papers for selected topics. These papers serve as positive examples for evaluating a candidate search query within a selected topic by the [evaluation script](/scripts/evaluate_query.py). This collection of curated papers is an on-going effort to improve the *template queries* in `queries/`.
