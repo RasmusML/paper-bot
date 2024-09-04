@@ -24,7 +24,7 @@ def format_query_papers(
     since: datetime.date,
     add_preamble: bool = True,
     format_type: FormatType = "plain",
-) -> str | list[Any]:
+) -> str:
     """Format the fetched papers."""
     fmt = _get_formatter(format_type)
     return fmt.format_query_papers(query, papers, since, add_preamble)
@@ -36,7 +36,7 @@ def format_similar_papers(
     paper_title: str,
     add_preamble: bool = True,
     format_type: FormatType = "plain",
-) -> str | list[Any]:
+) -> str:
     """Format similar papers."""
     fmt = _get_formatter(format_type)
     return fmt.format_similar_papers(paper, similar_papers, paper_title, add_preamble)
@@ -48,7 +48,7 @@ def format_papers_citing(
     paper_title: str,
     add_preamble: bool = True,
     format_type: FormatType = "plain",
-) -> str | list[Any]:
+) -> str:
     """Format papers citing."""
     fmt = _get_formatter(format_type)
     return fmt.format_papers_citing(paper, citing_papers, paper_title, add_preamble)

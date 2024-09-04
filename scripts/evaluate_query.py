@@ -3,11 +3,12 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
-import paperbot as pb
 import requests
-from paperbot.evaluate import Specter2, p_score, precision, recall
 from sklearn.decomposition import PCA
 from tqdm import tqdm
+
+import paperbot as pb
+from paperbot.evaluate import Specter2, p_score, precision, recall
 
 logger = logging.getLogger(__name__)
 
@@ -64,15 +65,15 @@ def evaluate_query(
     positives = _fetch_papers(positives_titles, max_attempts=max_attempts_to_fetch)
 
     positives_with_abstract = np.array(["abstract" in p for p in positives])
-    n_positives_with_abstract = np.sum(positives_with_abstract) / len(positives)
-    logging.info(f"{n_positives_with_abstract*100:.0f}% positives contain abstract")
+    p_positives_with_abstract = np.sum(positives_with_abstract) / len(positives) * 100
+    logging.info(f"{p_positives_with_abstract:.0f}% positives contain abstract")
 
     logging.info("Fetching queries.")
     query = _fetch_papers(query_titles, max_attempts=max_attempts_to_fetch)
 
     query_with_abstract = np.array(["abstract" in p for p in query])
-    n_query_with_abstract = np.sum(query_with_abstract) / len(query)
-    logging.info(f"{n_query_with_abstract*100:.0f}% queries contain abstract")
+    p_query_with_abstract = np.sum(query_with_abstract) / len(query) * 100
+    logging.info(f"{p_query_with_abstract:.0f}% queries contain abstract")
 
     model = Specter2()
     positives_embeddings = model.get_embeddings(positives, max_length=max_tokens)

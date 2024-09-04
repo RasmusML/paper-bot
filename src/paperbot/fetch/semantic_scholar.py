@@ -97,7 +97,7 @@ def fetch_papers_citing(paper_id: str, limit: int = None, fields: str = None) ->
     """
     res = requests.get(
         f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}/citations",
-        params={  # type: ignore # @TODO: why?
+        params={  # type: ignore
             "limit": limit,
             "fields": fields,
         },

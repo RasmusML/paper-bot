@@ -5,8 +5,6 @@ import os
 
 import paperbot
 
-logger = logging.getLogger(__name__)
-
 logging.basicConfig(level=logging.INFO)
 
 TEMPLATE_QUERIES_DIR = "queries/"
