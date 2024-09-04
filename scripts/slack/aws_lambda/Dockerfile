@@ -7,7 +7,7 @@ COPY pyproject.toml pyproject.toml
 
 COPY src/ src/
 COPY queries/ queries/
-COPY scripts/ scripts/
+COPY scripts/slack/aws_lambda/run_bot.py scripts/slack/aws_lambda/run_bot.py
 COPY .env .env
 
 RUN pip install -e .
