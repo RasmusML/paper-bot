@@ -98,7 +98,7 @@ def paperfind(
     text = pb.format_query_papers(query_to_show, papers, since, add_preamble, format_type="slack")
 
     text_content = _split_into_blocks(text) if split_message else text
-    _send_message(app, channel_id, text_content, unfurl_links=False)
+    _send_message(app, channel_id, text_content)
 
 
 def paperlike(app: App, body: dict[str, Any], *, paper_limit: int = 50, support_split_flag: bool = True):
@@ -132,7 +132,7 @@ def paperlike(app: App, body: dict[str, Any], *, paper_limit: int = 50, support_
     text = pb.format_similar_papers(paper, similar_papers, title, add_preamble, format_type="slack")
 
     text_content = _split_into_blocks(text) if split_message else text
-    _send_message(app, channel_id, text_content, unfurl_links=False)
+    _send_message(app, channel_id, text_content)
 
 
 def papercite(app: App, body: dict[str, Any], *, paper_limit: int = 50, support_split_flag: bool = True):
@@ -165,7 +165,7 @@ def papercite(app: App, body: dict[str, Any], *, paper_limit: int = 50, support_
     text = pb.format_papers_citing(paper, similar_papers, title, add_preamble, format_type="slack")
 
     text_content = _split_into_blocks(text) if split_message else text
-    _send_message(app, channel_id, text_content, unfurl_links=False)
+    _send_message(app, channel_id, text_content)
 
 
 def _unbold_text(text: str) -> str:
@@ -174,9 +174,9 @@ def _unbold_text(text: str) -> str:
     return text
 
 
-def _send_message(app: App, channel_id: str, message: str | list[str], unfurl_links=False):
+def _send_message(app: App, channel_id: str, message: str | list[str], unfurl=False):
     if isinstance(message, str):
-        app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl_links)
+        app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl, unfurl_media=unfurl)
         return
 
     # send multiple messages as a burst
@@ -185,11 +185,11 @@ def _send_message(app: App, channel_id: str, message: str | list[str], unfurl_li
     if len(messages) == 0:
         return
 
-    app.client.chat_postMessage(channel=channel_id, text=messages[0], unfurl_links=unfurl_links)
+    app.client.chat_postMessage(channel=channel_id, text=messages[0], unfurl_links=unfurl, unfurl_media=unfurl)
 
     for message in messages[1:]:
         time.sleep(DELAY_BETWEEN_MESSAGES_IN_SECONDS)
-        app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl_links)
+        app.client.chat_postMessage(channel=channel_id, text=message, unfurl_links=unfurl, unfurl_media=unfurl)
 
 
 def _split_into_blocks(text: str) -> list[str]:
